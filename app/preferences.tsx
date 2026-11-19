@@ -141,7 +141,7 @@ export function SettingsScreen() {
   return (
     <NavigationStack>
       <List
-        navigationTitle="网上国网"
+        navigationTitle="网上国网用电"
         toolbar={{
           cancellationAction: <Button title="完成" action={dismiss} />
         }}
