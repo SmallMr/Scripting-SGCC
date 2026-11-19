@@ -15,18 +15,18 @@ import {
   useEffect,
   useState
 } from 'scripting'
-import { errorMessage, getData, sendSms } from '../api/client'
+import { loadUsageFeed, sendDeviceCode, toErrorMessage } from '../core/gateway'
 import {
-  clearCache,
-  getPassword,
-  loadPreference,
-  savePreference,
-  setPassword
-} from '../store'
-import type { Preference, SmallWidgetMode } from '../store'
+  clearUsageSnapshot,
+  readAccountSecret,
+  readWidgetSettings,
+  writeAccountSecret,
+  writeWidgetSettings
+} from '../core/settings'
+import type { CompactStyle, WidgetSettings } from '../core/settings'
 
-/** A whole-number field that only commits positive values. */
-function NumberField({
+/** 只接受正整数的输入行。 */
+function NumericRow({
   title,
   value,
   onChanged
@@ -48,8 +48,8 @@ function NumberField({
         frame={{ width: 100 }}
         onChanged={(next: string) => {
           setText(next)
-          const n = Number(next)
-          if (Number.isInteger(n) && n > 0) onChanged(n)
+          const parsed = Number(next)
+          if (Number.isInteger(parsed) && parsed > 0) onChanged(parsed)
         }}
       />
     </HStack>
@@ -57,80 +57,84 @@ function NumberField({
 }
 
 /**
- * The whole app: the settings the Scriptable version kept in `withSettings`.
- * Preferences live in `Storage` (read by the widget), the password in the
- * Keychain; every change reloads the widgets.
+ * 设置页：账号信息放在这里，偏好存 `Storage`（小组件读取），密码进钥匙串。
+ * 任何一项变化都会重载桌面小组件。
  */
-export function Settings() {
+export function SettingsScreen() {
   const dismiss = Navigation.useDismiss()
-  const [preference, setPreference] = useState<Preference>(() => loadPreference())
-  const [password, setPasswordText] = useState(() => getPassword())
+  const [settings, setSettings] = useState<WidgetSettings>(() =>
+    readWidgetSettings()
+  )
+  const [password, setPasswordText] = useState(() => readAccountSecret())
   const [sending, setSending] = useState(false)
   const [refreshing, setRefreshing] = useState(false)
 
   useEffect(() => {
-    savePreference(preference)
+    writeWidgetSettings(settings)
     Widget.reloadAll()
-  }, [preference])
+  }, [settings])
 
   useEffect(() => {
-    setPassword(password)
+    writeAccountSecret(password)
   }, [password])
 
-  const update = (patch: Partial<Preference>) =>
-    setPreference((prev) => ({ ...prev, ...patch }))
+  const patch = (changes: Partial<WidgetSettings>) =>
+    setSettings((previous) => ({ ...previous, ...changes }))
 
-  const changePhone = (phone: string) => {
-    // Data cached for another account must not show up under the new one.
-    if (phone !== preference.phone) clearCache()
-    update({ phone })
+  const handlePhoneChange = (phone: string) => {
+    // 换账号后，上一个账号的缓存不能继续显示
+    if (phone !== settings.phone) clearUsageSnapshot()
+    patch({ phone })
   }
 
-  const onSendSms = async () => {
+  const handleSendCode = async () => {
     setSending(true)
     try {
-      const masked = await sendSms()
+      const masked = await sendDeviceCode()
       await Dialog.alert({
         title: '短信验证码已发送',
         message: `验证码已发至 ${masked}，请在 15 分钟内填入「短信验证码」后预览组件`
       })
-    } catch (e) {
-      console.error(e)
-      await Dialog.alert({ title: '发送失败', message: errorMessage(e) })
+    } catch (error) {
+      console.error(error)
+      await Dialog.alert({ title: '发送失败', message: toErrorMessage(error) })
     } finally {
       setSending(false)
     }
   }
 
-  const onRefresh = async () => {
+  const handleRefresh = async () => {
     setRefreshing(true)
     try {
-      const { list, error } = await getData({ force: true })
+      const { list, error } = await loadUsageFeed({ force: true })
       const ok = list.filter(Boolean).length
       await Dialog.alert({
         title: error ? '刷新失败，已使用缓存' : '刷新成功',
         message: error ?? `已获取 ${ok} 个户号的数据`
       })
       Widget.reloadAll()
-    } catch (e) {
-      console.error(e)
-      await Dialog.alert({ title: '刷新失败', message: errorMessage(e) })
+    } catch (error) {
+      console.error(error)
+      await Dialog.alert({ title: '刷新失败', message: toErrorMessage(error) })
     } finally {
       setRefreshing(false)
     }
   }
 
-  const onClearCache = async () => {
-    clearCache()
+  const handleClearCache = async () => {
+    clearUsageSnapshot()
     Widget.reloadAll()
-    await Dialog.alert({ title: '已清除', message: '下次刷新将重新请求国网数据' })
+    await Dialog.alert({
+      title: '已清除',
+      message: '下次刷新将重新请求国网数据'
+    })
   }
 
-  const preview = async () => {
+  const openWidgetPreview = async () => {
     try {
       await Widget.preview()
-    } catch (e) {
-      console.error(e)
+    } catch (error) {
+      console.error(error)
     }
   }
 
@@ -151,9 +155,9 @@ export function Settings() {
           <TextField
             title="手机号"
             prompt="手机号"
-            value={preference.phone}
+            value={settings.phone}
             keyboardType="phonePad"
-            onChanged={changePhone}
+            onChanged={handlePhoneChange}
           />
           <SecureField
             title="密码"
@@ -161,7 +165,7 @@ export function Settings() {
             value={password}
             onChanged={setPasswordText}
           />
-          <Button action={onSendSms} disabled={sending}>
+          <Button action={handleSendCode} disabled={sending}>
             <HStack>
               <Text>发送短信验证码</Text>
               <Spacer />
@@ -171,21 +175,21 @@ export function Settings() {
           <TextField
             title="短信验证码"
             prompt="短信验证码"
-            value={preference.smsCode}
+            value={settings.smsCode}
             keyboardType="numberPad"
-            onChanged={(smsCode: string) => update({ smsCode })}
+            onChanged={(smsCode: string) => patch({ smsCode })}
           />
         </Section>
 
         <Section header={<Text>数据</Text>}>
-          <Button action={onRefresh} disabled={refreshing}>
+          <Button action={handleRefresh} disabled={refreshing}>
             <HStack>
               <Text>立即刷新</Text>
               <Spacer />
               {refreshing ? <ProgressView /> : null}
             </HStack>
           </Button>
-          <Button title="清除数据缓存" role="destructive" action={onClearCache} />
+          <Button title="清除数据缓存" role="destructive" action={handleClearCache} />
         </Section>
 
         <Section
@@ -194,27 +198,29 @@ export function Settings() {
             <Text>按年累计电量计算，单位：度。第二阶梯上限需要大于第一阶梯上限。</Text>
           }
         >
-          <NumberField
+          <NumericRow
             title="第一阶梯上限"
-            value={preference.oneLevelPq}
-            onChanged={(oneLevelPq) => update({ oneLevelPq })}
+            value={settings.oneLevelPq}
+            onChanged={(oneLevelPq) => patch({ oneLevelPq })}
           />
-          <NumberField
+          <NumericRow
             title="第二阶梯上限"
-            value={preference.twoLevelPq}
-            onChanged={(twoLevelPq) => update({ twoLevelPq })}
+            value={settings.twoLevelPq}
+            onChanged={(twoLevelPq) => patch({ twoLevelPq })}
           />
         </Section>
 
         <Section
           header={<Text>小号组件</Text>}
-          footer={<Text>只影响小号组件；三项为昨日 / 本月 / 上月，四项列表和四项模块都包含本年。</Text>}
+          footer={
+            <Text>只影响小号组件；三项为昨日 / 本月 / 上月，四项列表和四项模块都包含本年。</Text>
+          }
         >
           <Picker
             title="显示方式"
-            value={preference.smallWidgetMode}
+            value={settings.smallWidgetMode}
             onChanged={(value: string) =>
-              update({ smallWidgetMode: value as SmallWidgetMode })
+              patch({ smallWidgetMode: value as CompactStyle })
             }
             pickerStyle="segmented"
           >
@@ -232,8 +238,10 @@ export function Settings() {
         >
           <Picker
             title="更新时间"
-            value={String(preference.refreshHours)}
-            onChanged={(value: string) => update({ refreshHours: Number(value) })}
+            value={String(settings.refreshHours)}
+            onChanged={(value: string) =>
+              patch({ refreshHours: Number(value) })
+            }
           >
             <Text tag="4">4 小时</Text>
             <Text tag="6">6 小时</Text>
@@ -249,7 +257,7 @@ export function Settings() {
             <Text>多户号：长按桌面小组件 → 编辑小组件 → 参数，填从 0 开始的整数，0 为第一户，1 为第二户，以此类推。</Text>
           }
         >
-          <Button title="预览小组件" action={preview} />
+          <Button title="预览小组件" action={openWidgetPreview} />
         </Section>
       </List>
     </NavigationStack>

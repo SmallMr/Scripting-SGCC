@@ -2,9 +2,6 @@
 
 网上国网小组件：电费余额、上期 / 年度电费电量、阶梯进度，以及按日或按月的用电柱状图。
 
-> 基于 [Honye/scripting-scripts · SGCC](https://github.com/Honye/scripting-scripts/tree/main/scripts/SGCC)
-> 整理，可在 [Scripting](https://scripting.fun/) 中导入使用。
-
 ## 使用
 
 直接导入仓库根目录的 `Scripting-SGCC.scripting`，或在 Scripting 中新建脚本后放入本仓库文件。
@@ -25,15 +22,42 @@
 - **小号组件**：三项 / 四项列表 / 四项模块
 - **数据更新**：4 / 6 / 8 / 12 / 24 小时
 
-> 当前版本先完成设置界面：小号组件的三种模式会保存到偏好设置，组件渲染仍沿用上游版本，后续版本接入。
+> 小号组件的三种模式会保存到偏好设置，组件渲染在后续版本接入。
 
 ## 数据与刷新
 
 - 直连网上国网 App 接口，缓存时长由设置里的「数据更新」决定（默认 4 小时）；请求失败时回退到缓存（中号组件右下角时间旁会显示 ⚠︎）。
 - 「清除数据缓存」后下次刷新会重新请求。
 
-## 致谢
+## 目录
 
-协议（SM2 / SM3 / SM4 加密与 Turing 设备令牌）移植自
-[stevenjoezhang/hass-state-grid](https://github.com/stevenjoezhang/hass-state-grid)，
-MIT License, Copyright (c) 2026 stevenjoezhang，见 `vendor/sgcc_protocol.ts`。
+```text
+.
+├── index.tsx              设置页入口
+├── widget.tsx             小组件入口
+├── app/
+│   └── preferences.tsx    设置界面
+├── core/
+│   ├── gateway.ts         请求、缓存与短信验证
+│   ├── protocol.ts        设备令牌与加解密
+│   ├── settings.ts        偏好设置与钥匙串
+│   └── usage.ts           用量整理与阶梯计算
+├── ui/
+│   ├── canvas.tsx         按尺寸分发
+│   ├── compact.tsx        小号
+│   ├── medium.tsx         中号
+│   ├── accessory.tsx      锁屏与错误页
+│   ├── atoms.tsx          公共图形
+│   ├── model.ts           视图数据类型
+│   └── theme.ts           尺寸、颜色与格式化
+└── assets/
+    └── logo.png
+```
+
+## 说明与致谢
+
+- 小组件思路与早期版本参考了
+  [Honye/scripting-scripts · SGCC](https://github.com/Honye/scripting-scripts/tree/main/scripts/SGCC)。
+- 协议（SM2 / SM3 / SM4 加密与 Turing 设备令牌）来自
+  [stevenjoezhang/hass-state-grid](https://github.com/stevenjoezhang/hass-state-grid)，
+  MIT License, Copyright (c) 2026 stevenjoezhang，见 `core/protocol.ts`。

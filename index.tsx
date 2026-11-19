@@ -1,8 +1,8 @@
 import { Navigation, Script } from 'scripting'
-import { Settings } from './views/Settings'
+import { SettingsScreen } from './app/preferences'
 
 async function main() {
-  await Navigation.present({ element: <Settings /> })
+  await Navigation.present({ element: <SettingsScreen /> })
   Script.exit()
 }
 
