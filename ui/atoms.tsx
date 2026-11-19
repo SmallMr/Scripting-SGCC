@@ -206,16 +206,14 @@ export function MetricTile({
             unitSize={unitSize}
           />
           <Spacer minLength={0} />
+          {money != null && divider ? (
+            <Rectangle
+              fill={LINE}
+              frame={{ width: px(1), height: px(22) }}
+            />
+          ) : null}
           {money != null ? (
-            <>
-              {divider ? (
-                <Rectangle
-                  fill={LINE}
-                  frame={{ width: px(1), height: px(22) }}
-                />
-              ) : null}
-              <MoneyAmount value={money} fontSize={moneySize} />
-            </>
+            <MoneyAmount value={money} fontSize={moneySize} />
           ) : null}
         </HStack>
       </VStack>
