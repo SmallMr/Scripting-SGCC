@@ -67,7 +67,7 @@ export function WideWidgetView({
 
       <HeroSurface
         width={innerWidth}
-        height={px(86)}
+        height={px(80)}
         inset={px(12)}
       >
         <VStack alignment="leading" spacing={px(1)}>
@@ -123,16 +123,6 @@ export function WideWidgetView({
             unitSize={px(11)}
             moneySize={px(14)}
           />
-          <HeroMetaLine
-            label="本年"
-            value={summary.yearUsage}
-            money={summary.yearCost}
-            labelWidth={px(32)}
-            labelSize={px(14)}
-            valueSize={px(20)}
-            unitSize={px(11)}
-            moneySize={px(14)}
-          />
         </VStack>
       </HeroSurface>
 
@@ -145,7 +135,7 @@ export function WideWidgetView({
         height={px(18)}
       />
       <Rectangle fill={CLEAR} frame={{ width: 1, height: px(2) }} />
-      <DailyBars items={recent} width={innerWidth} height={px(82)} />
+      <DailyBars items={recent} width={innerWidth} height={px(88)} />
 
       <Rectangle fill={CLEAR} frame={{ width: 1, height: px(5) }} />
       <TierPanel

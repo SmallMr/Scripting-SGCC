@@ -213,7 +213,7 @@ export function SettingsScreen() {
         <Section
           header={<Text>小号组件</Text>}
           footer={
-            <Text>只影响小号组件；三项为昨日 / 本月 / 上月，四项列表和四项模块都包含本年。</Text>
+            <Text>只影响小号组件；摘要默认显示本月、昨日和上月，三项列表显示昨日 / 本月 / 上月，四项列表再包含本年。</Text>
           }
         >
           <Picker
@@ -224,9 +224,9 @@ export function SettingsScreen() {
             }
             pickerStyle="segmented"
           >
-            <Text tag="three">三项</Text>
+            <Text tag="modules">摘要</Text>
+            <Text tag="three">三项列表</Text>
             <Text tag="compact">四项列表</Text>
-            <Text tag="modules">四项模块</Text>
           </Picker>
         </Section>
 

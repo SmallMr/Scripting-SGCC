@@ -103,61 +103,6 @@ function SmallHero({
   )
 }
 
-function RowsLayout({
-  props,
-  width,
-  height,
-  rowHeight,
-  valueSize,
-  moneySize
-}: {
-  props: WidgetViewProps
-  width: number
-  height: number
-  rowHeight: number
-  valueSize: number
-  moneySize: number
-}) {
-  const { summary } = props
-  return (
-    <VStack alignment="leading" spacing={0} frame={{ width, height }}>
-      <HStack
-        alignment="lastTextBaseline"
-        frame={{ width, height: rowHeight, alignment: 'leading' }}
-      >
-        <MetaLine
-          label="上月"
-          value={summary.previousUsage}
-          money={summary.previousCost}
-          labelWidth={px(34)}
-          labelSize={px(16)}
-          valueSize={valueSize}
-          unitSize={px(12)}
-          moneySize={moneySize}
-          fill
-        />
-      </HStack>
-      <Rectangle fill={LINE} frame={{ width, height: px(1) }} />
-      <HStack
-        alignment="lastTextBaseline"
-        frame={{ width, height: height - rowHeight - px(1), alignment: 'leading' }}
-      >
-        <MetaLine
-          label="本年"
-          value={summary.yearUsage}
-          money={summary.yearCost}
-          labelWidth={px(34)}
-          labelSize={px(16)}
-          valueSize={valueSize}
-          unitSize={px(12)}
-          moneySize={moneySize}
-          fill
-        />
-      </HStack>
-    </VStack>
-  )
-}
-
 export function CompactWidgetView(props: WidgetViewProps) {
   const { summary, settings, syncedAt } = props
   const width = Widget.displaySize.width
@@ -251,14 +196,56 @@ export function CompactWidgetView(props: WidgetViewProps) {
         </VStack>
       ) : mode === 'three' ? (
         <VStack
-          alignment="leading"
+          alignment="center"
+          spacing={0}
+          frame={{ width: innerWidth, height: contentHeight }}
+        >
+          <DataRow
+            label="昨日"
+            value={summary.yesterdayUsage}
+            width={innerWidth}
+            height={contentHeight / 3}
+            first
+            labelWidth={px(38)}
+            labelSize={px(17)}
+            valueSize={px(30)}
+            unitSize={px(14)}
+            moneySize={px(18)}
+          />
+          <DataRow
+            label="本月"
+            value={summary.monthUsage}
+            width={innerWidth}
+            height={contentHeight / 3}
+            labelWidth={px(38)}
+            labelSize={px(17)}
+            valueSize={px(30)}
+            unitSize={px(14)}
+            moneySize={px(18)}
+          />
+          <DataRow
+            label="上月"
+            value={summary.previousUsage}
+            money={summary.previousCost}
+            width={innerWidth}
+            height={contentHeight / 3}
+            labelWidth={px(38)}
+            labelSize={px(17)}
+            valueSize={px(30)}
+            unitSize={px(14)}
+            moneySize={px(18)}
+          />
+        </VStack>
+      ) : (
+        <VStack
+          alignment="center"
           spacing={0}
           frame={{ width: innerWidth, height: contentHeight }}
         >
           <SmallHero
             props={props}
             width={innerWidth}
-            height={px(138)}
+            height={px(140)}
             monthSize={px(56)}
             yesterdaySize={px(28)}
           />
@@ -279,29 +266,6 @@ export function CompactWidgetView(props: WidgetViewProps) {
               fill
             />
           </HStack>
-        </VStack>
-      ) : (
-        <VStack
-          alignment="leading"
-          spacing={0}
-          frame={{ width: innerWidth, height: contentHeight }}
-        >
-          <SmallHero
-            props={props}
-            width={innerWidth}
-            height={px(104)}
-            monthSize={px(46)}
-            yesterdaySize={px(26)}
-          />
-          <Rectangle fill={CLEAR} frame={{ width: 1, height: px(6) }} />
-          <RowsLayout
-            props={props}
-            width={innerWidth}
-            height={px(82)}
-            rowHeight={px(41)}
-            valueSize={px(24)}
-            moneySize={px(15)}
-          />
         </VStack>
       )}
 

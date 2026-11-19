@@ -57,7 +57,7 @@ export function LargeWidgetView({
   const calendar = calendarForMonth(summary.days)
   const cellGap = px(4)
   const cellWidth = (innerWidth - cellGap * 6) / 7
-  const rowHeight = px(50)
+  const rowHeight = px(54)
   const values = calendar.cells
     .map((cell) => cell.value)
     .filter((value): value is number => value != null && value > 0)
@@ -87,7 +87,7 @@ export function LargeWidgetView({
 
       <HeroSurface
         width={innerWidth}
-        height={px(168)}
+        height={px(144)}
         inset={px(16)}
       >
         <VStack alignment="leading" spacing={px(2)}>
@@ -134,16 +134,6 @@ export function LargeWidgetView({
             label="上月"
             value={summary.previousUsage}
             money={summary.previousCost}
-            labelWidth={px(34)}
-            labelSize={px(16)}
-            valueSize={px(28)}
-            unitSize={px(13)}
-            moneySize={px(17)}
-          />
-          <HeroMetaLine
-            label="本年"
-            value={summary.yearUsage}
-            money={summary.yearCost}
             labelWidth={px(34)}
             labelSize={px(16)}
             valueSize={px(28)}
