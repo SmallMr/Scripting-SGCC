@@ -129,7 +129,7 @@ export function MoneyAmount({
   return (
     <HStack alignment="lastTextBaseline" spacing={px(1)}>
       <Text
-        font={fontSize * 0.68}
+        font={fontSize * 0.62}
         fontWeight="medium"
         foregroundStyle={MONEY}
         lineLimit={1}
@@ -164,6 +164,7 @@ type MetricTileProps = {
   gap?: number
   inset?: number
   divider?: boolean
+  surface?: boolean
 }
 
 /** 上下结构的数据块，内容和底边、顶边的间距保持一致。 */
@@ -180,15 +181,22 @@ export function MetricTile({
   moneySize = px(12),
   gap = px(4),
   inset = px(10),
-  divider = false
+  divider = false,
+  surface = false
 }: MetricTileProps) {
   return (
     <VStack
       alignment="center"
       spacing={0}
       frame={{ width, height, alignment: 'center' }}
-      background={<RoundedRectangle cornerRadius={radius} fill={TILE} />}
-      border={{ color: LINE, width: px(1.5) }}
+      background={
+        surface ? (
+          <RoundedRectangle cornerRadius={radius} fill={TILE} />
+        ) : undefined
+      }
+      border={
+        surface ? { color: LINE, width: px(1.5) } : undefined
+      }
     >
       <Spacer minLength={0} />
       <VStack
@@ -267,7 +275,7 @@ export function DataRow({
       ) : null}
       <HStack
         alignment="lastTextBaseline"
-        spacing={px(20)}
+        spacing={px(12)}
         frame={{
           width: width - inset * 2,
           height: height - (first ? 0 : px(1)),
@@ -300,38 +308,44 @@ export function TierPanel({
   detail,
   fraction,
   width,
-  height = px(68)
+  height = px(56)
 }: {
   detail: string
   fraction: number
   width: number
   height?: number
 }) {
-  const insetX = px(11)
+  const insetX = 0
   const innerWidth = width - insetX * 2
   const gap = px(4)
   const segmentWidth = (innerWidth - gap * 2) / 3
-  const knobSize = px(17)
-  const trackHeight = px(20)
-  const barHeight = px(11)
+  const knobSize = px(15)
+  const trackHeight = px(18)
+  const barHeight = px(9)
   const safeFraction = Math.max(0, Math.min(1, fraction))
+  const knobCenter = Math.min(
+    innerWidth - knobSize / 2,
+    Math.max(knobSize / 2, innerWidth * safeFraction)
+  )
   return (
     <VStack
       alignment="center"
       spacing={0}
       frame={{ width, height, alignment: 'center' }}
-      background={<RoundedRectangle cornerRadius={px(15)} fill={TILE} />}
-      border={{ color: LINE, width: px(1.5) }}
     >
-      <Rectangle fill={CLEAR} frame={{ width: 1, height: px(8) }} />
+      <Rectangle fill={LINE} frame={{ width, height: px(1) }} />
+      <Rectangle fill={CLEAR} frame={{ width: 1, height: px(5) }} />
       <VStack
         alignment="leading"
         spacing={0}
-        frame={{ width: innerWidth, height: height - px(8) - px(14) }}
+        frame={{
+          width: innerWidth,
+          height: height - px(1) - px(5) - px(6)
+        }}
       >
-        <HStack spacing={px(8)} frame={{ maxWidth: 'infinity' }}>
+        <HStack spacing={px(8)} frame={{ maxWidth: 'infinity', height: px(24) }}>
           <Text
-            font={px(13)}
+            font={px(18)}
             fontWeight="medium"
             foregroundStyle={MUTED}
             lineLimit={1}
@@ -341,7 +355,7 @@ export function TierPanel({
           </Text>
           <Spacer minLength={0} />
           <Text
-            font={px(13)}
+            font={px(18)}
             fontWeight="semibold"
             foregroundStyle={AMBER_TEXT}
             lineLimit={1}
@@ -369,13 +383,13 @@ export function TierPanel({
             frame={{ width: knobSize, height: knobSize }}
             border={{ color: TIER_AMBER, width: px(4) }}
             offset={{
-              x: innerWidth * safeFraction - knobSize / 2,
+              x: knobCenter - knobSize / 2,
               y: 0
             }}
           />
         </ZStack>
       </VStack>
-      <Rectangle fill={CLEAR} frame={{ width: 1, height: px(14) }} />
+      <Rectangle fill={CLEAR} frame={{ width: 1, height: px(6) }} />
     </VStack>
   )
 }
@@ -409,71 +423,73 @@ export function SectionTitle({
   )
 }
 
-export function DailyChart({
+/** 两行七列，避免 14 根细柱把日期和数值挤在一起。 */
+export function DailyGrid({
   items,
   width,
-  height = px(80)
+  height = px(88)
 }: {
   items: { day: number; value: number; isToday: boolean }[]
   width: number
   height?: number
 }) {
-  const gap = px(2)
-  const columnWidth = (width - gap * 13) / 14
-  const peak = Math.max(1, ...items.map(({ value }) => value))
-  const barArea = px(48)
+  const columns = 7
+  const rowGap = px(4)
+  const columnWidth = width / columns
+  const rowHeight = (height - rowGap) / 2
+  const chunks = [items.slice(0, columns), items.slice(columns, columns * 2)]
   return (
-    <HStack spacing={gap} frame={{ width, height }}>
-      {items.map(({ value, day, isToday }, index) => {
-        return (
-          <VStack
-            key={`${index}-${value}`}
-            spacing={px(3)}
-            frame={{ width: columnWidth, height, alignment: 'center' }}
-          >
-            <Text
-              font={px(10)}
-              fontWeight="medium"
-              foregroundStyle={QUIET}
-              lineLimit={1}
-              minScaleFactor={0.55}
+    <VStack alignment="leading" spacing={rowGap} frame={{ width, height }}>
+      {chunks.map((chunk, row) => (
+        <HStack
+          key={row}
+          spacing={0}
+          frame={{ width, height: rowHeight }}
+        >
+          {chunk.map(({ value, day, isToday }, index) => (
+            <VStack
+              key={`${row}-${index}-${day}`}
+              alignment="leading"
+              spacing={0}
+              frame={{
+                width: columnWidth,
+                height: rowHeight,
+                alignment: 'leading'
+              }}
             >
-              {day}
-            </Text>
-            <ZStack alignment="bottom" frame={{ width: columnWidth, height: barArea }}>
-              <Capsule
-                fill={
-                  isToday
-                    ? {
-                        colors: ['#E9BF70', '#CF9330'],
-                        startPoint: 'top',
-                        endPoint: 'bottom'
-                      }
-                    : {
-                        colors: ['#54C4AA', '#07866F'],
-                        startPoint: 'top',
-                        endPoint: 'bottom'
-                      }
-                }
-                frame={{
-                  width: px(12),
-                  height: Math.max(px(6), (value / peak) * barArea)
-                }}
-              />
-            </ZStack>
-            <Text
-              font={px(10)}
-              fontWeight="semibold"
-              foregroundStyle={INK}
-              lineLimit={1}
-              minScaleFactor={0.55}
-            >
-              {formatUsage(value)}
-            </Text>
-          </VStack>
-        )
-      })}
-    </HStack>
+              <Text
+                font={px(14)}
+                fontWeight="medium"
+                foregroundStyle={QUIET}
+                lineLimit={1}
+              >
+                {day}
+              </Text>
+              <Spacer minLength={0} />
+              <HStack alignment="lastTextBaseline" spacing={px(2)}>
+                <Text
+                  font={px(21)}
+                  fontWeight="semibold"
+                  foregroundStyle={isToday ? AMBER_TEXT : INK}
+                  lineLimit={1}
+                  minScaleFactor={0.6}
+                >
+                  {formatUsage(value)}
+                </Text>
+                <Text
+                  font={px(13)}
+                  fontWeight="medium"
+                  foregroundStyle={UNIT}
+                  lineLimit={1}
+                >
+                  度
+                </Text>
+              </HStack>
+            </VStack>
+          ))}
+        </HStack>
+      ))}
+    </VStack>
   )
 }
 
@@ -497,26 +513,6 @@ export function CalendarCellView({
   height: number
 }) {
   const blank = day === 0
-  const fill = blank
-    ? '#FFFFFF'
-    : isFuture
-      ? '#F9FBFA'
-      : isToday
-        ? '#FFF3DE'
-        : isMax
-          ? '#FFEFEC'
-          : isMin
-            ? '#EAF3FA'
-            : '#F4F8F7'
-  const border = blank || isFuture
-    ? '#E1EAE6'
-    : isToday
-      ? '#D9A951'
-      : isMax
-        ? '#DD8C82'
-        : isMin
-          ? '#87AACB'
-          : '#D5E2DD'
   const valueColor = isToday
     ? '#7D5A1A'
     : isMax
@@ -529,21 +525,24 @@ export function CalendarCellView({
       alignment="center"
       spacing={0}
       frame={{ width, height, alignment: 'center' }}
-      background={<RoundedRectangle cornerRadius={px(10)} fill={fill} />}
-      border={{ color: border, width: px(2) }}
+      background={
+        isToday ? (
+          <RoundedRectangle cornerRadius={px(10)} fill="#FFF4DF" />
+        ) : undefined
+      }
     >
       {!blank ? (
         <VStack
           alignment="leading"
           spacing={0}
           frame={{
-            width: width - px(12),
-            height: height - px(8),
+            width: width - px(6),
+            height,
             alignment: 'leading'
           }}
         >
           <Text
-            font={px(10)}
+            font={px(14)}
             fontWeight="medium"
             foregroundStyle={isFuture ? FAINT : QUIET}
             lineLimit={1}
@@ -553,7 +552,7 @@ export function CalendarCellView({
           <Spacer minLength={0} />
           {value != null ? (
             <Text
-              font={px(14)}
+            font={px(20)}
               fontWeight="semibold"
               foregroundStyle={valueColor}
               lineLimit={1}

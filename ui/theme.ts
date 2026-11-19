@@ -21,7 +21,7 @@ export const BLUE = '#6C9DC6'
 export const AMBER = '#E9AE4B'
 export const TIER_GREEN = '#18A080'
 export const TIER_AMBER = '#E8B04E'
-export const TIER_REST = '#CFDBD6'
+export const TIER_REST = '#D9B79A'
 
 export const GRID_MARK_URL =
   'https://cdn.jsdelivr.net/gh/SmallMr/Scripting-SGCC@main/assets/logo.png'

@@ -5,13 +5,13 @@ import {
   CalendarCellView,
   LegendItem,
   MetricTile,
-  SectionTitle,
   TierPanel,
   UsageValue
 } from './atoms'
 import {
   AMBER,
   BLUE,
+  INK,
   LINE,
   MUTED,
   QUIET,
@@ -41,8 +41,8 @@ export function LargeWidgetView({
   const calendar = calendarForMonth(summary.days)
   const cellGap = px(5)
   const cellWidth = (innerWidth - cellGap * 6) / 7
-  const summaryGap = px(10)
-  const summaryWidth = (innerWidth - summaryGap) / 2
+  const summaryDivider = px(1)
+  const summaryWidth = (innerWidth - summaryDivider) / 2
 
   return (
     <VStack
@@ -55,18 +55,18 @@ export function LargeWidgetView({
       <BrandHeader
         syncedAt={syncedAt}
         logoSize={px(36)}
-        fontSize={px(13)}
-        gap={px(14)}
+        fontSize={px(19)}
+        gap={px(10)}
       />
 
       <HStack
-        alignment="center"
+        alignment="top"
         spacing={px(12)}
-        frame={{ width: innerWidth, height: px(80) }}
+        frame={{ width: innerWidth, height: px(140) }}
       >
-        <VStack alignment="leading" spacing={px(5)}>
+        <VStack alignment="leading" spacing={px(6)}>
           <Text
-            font={px(13)}
+            font={px(19)}
             fontWeight="medium"
             foregroundStyle={MUTED}
             lineLimit={1}
@@ -75,40 +75,55 @@ export function LargeWidgetView({
           </Text>
           <UsageValue
             value={formatUsage(summary.monthUsage)}
-            fontSize={px(48)}
-            unitSize={px(12)}
+            fontSize={px(92)}
+            unitSize={px(24)}
           />
         </VStack>
         <Spacer minLength={0} />
-        <MetricTile
-          label="昨日"
-          value={summary.yesterdayUsage}
-          width={px(138)}
-          height={px(58)}
-          radius={px(15)}
-          labelSize={px(13)}
-          valueSize={px(24)}
-          unitSize={px(12)}
-          gap={px(5)}
-          inset={px(14)}
+        <Rectangle
+          fill={LINE}
+          frame={{ width: px(1), height: px(120) }}
         />
+        <VStack alignment="leading" spacing={px(5)} frame={{ width: px(276) }}>
+          <Text
+            font={px(19)}
+            fontWeight="medium"
+            foregroundStyle={MUTED}
+            lineLimit={1}
+          >
+            昨日
+          </Text>
+          <UsageValue
+            value={formatUsage(summary.yesterdayUsage)}
+            fontSize={px(40)}
+            unitSize={px(18)}
+          />
+        </VStack>
       </HStack>
       <Rectangle fill={LINE} frame={{ width: innerWidth, height: px(1) }} />
-      <Rectangle fill={CLEAR} frame={{ width: 1, height: px(12) }} />
+      <Rectangle fill={CLEAR} frame={{ width: 1, height: px(10) }} />
 
-      <SectionTitle
-        title="本月每日用电"
-        trailing="单位：度"
-        titleSize={px(15)}
-        trailingSize={px(11)}
-      />
+      <HStack spacing={px(16)} frame={{ width: innerWidth, height: px(24) }}>
+        <Text
+          font={px(20)}
+          fontWeight="bold"
+          foregroundStyle={INK}
+          lineLimit={1}
+        >
+          本月每日用电
+        </Text>
+        <Spacer minLength={0} />
+        <LegendItem color={RED} text="最高" />
+        <LegendItem color={BLUE} text="最低" />
+        <LegendItem color={AMBER} text="今天" />
+      </HStack>
       <Rectangle fill={CLEAR} frame={{ width: 1, height: px(8) }} />
 
-      <HStack spacing={cellGap} frame={{ width: innerWidth, height: px(16) }}>
+      <HStack spacing={cellGap} frame={{ width: innerWidth, height: px(20) }}>
         {WEEKDAYS.map((name) => (
           <Text
             key={name}
-            font={px(11)}
+            font={px(16)}
             fontWeight="medium"
             foregroundStyle={QUIET}
             lineLimit={1}
@@ -125,7 +140,7 @@ export function LargeWidgetView({
           <HStack
             key={row}
             spacing={cellGap}
-            frame={{ width: innerWidth, height: px(42) }}
+            frame={{ width: innerWidth, height: px(41) }}
           >
             {calendar.cells.slice(row * 7, row * 7 + 7).map((cell) => (
               <CalendarCellView
@@ -136,7 +151,7 @@ export function LargeWidgetView({
                 isMax={cell.isMax}
                 isMin={cell.isMin}
                 width={cellWidth}
-                height={px(42)}
+                height={px(41)}
               />
             ))}
           </HStack>
@@ -144,41 +159,37 @@ export function LargeWidgetView({
       </VStack>
 
       <Rectangle fill={CLEAR} frame={{ width: 1, height: px(8) }} />
-      <HStack spacing={px(17)} frame={{ width: innerWidth, height: px(16) }}>
-        <LegendItem color={RED} text="最高" />
-        <LegendItem color={BLUE} text="最低" />
-        <LegendItem color={AMBER} text="今天" />
-      </HStack>
-      <Rectangle fill={CLEAR} frame={{ width: 1, height: px(10) }} />
 
-      <HStack spacing={summaryGap} frame={{ width: innerWidth, height: px(58) }}>
+      <HStack spacing={0} frame={{ width: innerWidth, height: px(70) }}>
         <MetricTile
           label="上月"
           value={summary.previousUsage}
           money={summary.previousCost}
           width={summaryWidth}
-          height={px(58)}
-          radius={px(15)}
-          labelSize={px(11)}
-          valueSize={px(20)}
-          unitSize={px(12)}
-          moneySize={px(12.5)}
-          gap={px(5)}
-          inset={px(12)}
+          height={px(70)}
+          labelSize={px(18)}
+          valueSize={px(36)}
+          unitSize={px(17)}
+          moneySize={px(20)}
+          gap={px(4)}
+          inset={0}
+        />
+        <Rectangle
+          fill={LINE}
+          frame={{ width: summaryDivider, height: px(44) }}
         />
         <MetricTile
           label="本年"
           value={summary.yearUsage}
           money={summary.yearCost}
           width={summaryWidth}
-          height={px(58)}
-          radius={px(15)}
-          labelSize={px(11)}
-          valueSize={px(20)}
-          unitSize={px(12)}
-          moneySize={px(12.5)}
-          gap={px(5)}
-          inset={px(12)}
+          height={px(70)}
+          labelSize={px(18)}
+          valueSize={px(36)}
+          unitSize={px(17)}
+          moneySize={px(20)}
+          gap={px(4)}
+          inset={0}
         />
       </HStack>
 
@@ -187,7 +198,7 @@ export function LargeWidgetView({
         detail={tier.detail}
         fraction={tier.fraction}
         width={innerWidth}
-        height={px(68)}
+        height={px(56)}
       />
     </VStack>
   )
