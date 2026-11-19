@@ -686,10 +686,10 @@ export function CalendarCellView({
       <VStack
         alignment="leading"
         spacing={0}
-        frame={{ width: width - px(10), height, alignment: 'leading' }}
+        frame={{ width: width - px(8), height, alignment: 'leading' }}
       >
         <Rectangle fill={CLEAR} frame={{ width: 1, height: px(4) }} />
-        <HStack spacing={px(3)} frame={{ width: width - px(10) }}>
+        <HStack spacing={px(3)} frame={{ width: width - px(8) }}>
           <Text
             font={px(14)}
             fontWeight="medium"
@@ -719,7 +719,7 @@ export function CalendarCellView({
             {formatUsage(value)}
           </Text>
         ) : null}
-        <Rectangle fill={CLEAR} frame={{ width: 1, height: px(3) }} />
+        <Rectangle fill={CLEAR} frame={{ width: 1, height: px(4) }} />
       </VStack>
     </VStack>
   )
