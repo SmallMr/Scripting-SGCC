@@ -563,9 +563,13 @@ export function DailyBars({
   height: number
 }) {
   const gap = px(2)
-  const columnWidth = (width - gap * 13) / 14
-  const dateHeight = px(13)
-  const valueHeight = px(16)
+  const count = items.length
+  const columnWidth = (width - gap * (count - 1)) / count
+  const dateSize = count <= 7 ? px(15) : px(12)
+  const valueSize = count <= 7 ? px(18) : px(16)
+  const barWidth = count <= 7 ? px(16) : px(9)
+  const dateHeight = count <= 7 ? px(15) : px(13)
+  const valueHeight = count <= 7 ? px(20) : px(16)
   const barArea = height - dateHeight - valueHeight - px(1)
   const peak = Math.max(1, ...items.map(({ value }) => value))
   return (
@@ -577,7 +581,7 @@ export function DailyBars({
           frame={{ width: columnWidth, height, alignment: 'center' }}
         >
           <Text
-            font={px(12)}
+            font={dateSize}
             fontWeight="medium"
             foregroundStyle={isToday ? AMBER_TEXT_ON_LIGHT : QUIET}
             lineLimit={1}
@@ -607,13 +611,13 @@ export function DailyBars({
                     }
               }
               frame={{
-                width: px(9),
+                width: barWidth,
                 height: Math.max(px(4), (value / peak) * (barArea - px(1)))
               }}
             />
           </ZStack>
           <Text
-            font={px(16)}
+            font={valueSize}
             fontWeight="semibold"
             foregroundStyle={isToday ? AMBER_TEXT_ON_LIGHT : INK}
             lineLimit={1}
@@ -684,41 +688,35 @@ export function CalendarCellView({
       }
     >
       <VStack
-        alignment="leading"
-        spacing={0}
-        frame={{ width: width - px(8), height, alignment: 'leading' }}
+        alignment="center"
+        spacing={px(1)}
+        frame={{ width, height, alignment: 'top' }}
       >
-        <Rectangle fill={CLEAR} frame={{ width: 1, height: px(4) }} />
-        <HStack spacing={px(3)} frame={{ width: width - px(8) }}>
-          <Text
-            font={px(14)}
-            fontWeight="medium"
-            foregroundStyle={isFuture ? FAINT : QUIET}
-            lineLimit={1}
-          >
-            {day}
-          </Text>
-          <Spacer minLength={0} />
-          {isToday ? (
-            <Circle
-              fill={AMBER_TEXT_ON_LIGHT}
-              frame={{ width: px(4), height: px(4) }}
-            />
-          ) : null}
-        </HStack>
+        <Rectangle fill={CLEAR} frame={{ width: 1, height: px(3) }} />
+        <Text
+          font={px(15)}
+          fontWeight="medium"
+          foregroundStyle={isFuture ? FAINT : QUIET}
+          lineLimit={1}
+        >
+          {day}
+        </Text>
         <Spacer minLength={0} />
         {value != null ? (
           <Text
-            font={px(24)}
+            font={px(23)}
             fontWeight="semibold"
             foregroundStyle={valueColor}
             lineLimit={1}
             minScaleFactor={0.5}
-            frame={{ maxWidth: 'infinity', alignment: 'trailing' }}
+            frame={{ maxWidth: 'infinity', alignment: 'center' }}
           >
             {formatUsage(value)}
           </Text>
-        ) : null}
+        ) : (
+          <Rectangle fill={CLEAR} frame={{ width: 1, height: px(24) }} />
+        )}
+        <Spacer minLength={0} />
         <Rectangle fill={CLEAR} frame={{ width: 1, height: px(4) }} />
       </VStack>
     </VStack>

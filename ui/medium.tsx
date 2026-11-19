@@ -49,7 +49,7 @@ export function WideWidgetView({
   )
   const accent =
     tier.tier === 1 ? TIER_GREEN : tier.tier === 2 ? TIER_AMBER : TIER_THIRD
-  const recent = recentCalendarDays(summary.days, 14)
+  const recent = recentCalendarDays(summary.days, 7)
 
   return (
     <VStack
@@ -140,7 +140,7 @@ export function WideWidgetView({
 
       <Rectangle fill={CLEAR} frame={{ width: 1, height: px(5) }} />
       <SectionTitle
-        title="最近14天"
+        title="最近7天"
         trailing="日用电量 · 度"
         titleSize={px(17)}
         trailingSize={px(13)}
