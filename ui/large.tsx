@@ -21,17 +21,15 @@ import {
 import {
   AMBER,
   BLUE,
-  HERO_ACCENT,
-  HERO_FAINT,
-  HERO_INK,
-  HERO_LINE,
-  HERO_MUTED,
   INK,
+  LINE,
+  MUTED,
   QUIET,
   RED,
   TIER_AMBER,
   TIER_GREEN,
   TIER_THIRD,
+  UNIT,
   WIDGET_BG,
   formatUsage,
   px
@@ -91,7 +89,6 @@ export function LargeWidgetView({
         width={innerWidth}
         height={px(168)}
         inset={px(16)}
-        radius={px(32)}
       >
         <VStack alignment="leading" spacing={px(2)}>
           <HStack spacing={px(6)}>
@@ -99,7 +96,7 @@ export function LargeWidgetView({
             <Text
               font={px(18)}
               fontWeight="medium"
-              foregroundStyle={HERO_MUTED}
+              foregroundStyle={MUTED}
               lineLimit={1}
             >
               本月
@@ -109,14 +106,14 @@ export function LargeWidgetView({
             value={formatUsage(summary.monthUsage)}
             fontSize={px(76)}
             unitSize={px(22)}
-            color={HERO_INK}
-            unitColor={HERO_FAINT}
+            color={INK}
+            unitColor={UNIT}
             weight="bold"
           />
         </VStack>
         <Spacer minLength={0} />
         <Rectangle
-          fill={HERO_LINE}
+          fill={LINE}
           frame={{ width: px(1), height: px(112) }}
         />
         <VStack
@@ -245,5 +242,5 @@ export function LargeWidgetView({
 }
 
 function CircleMark() {
-  return <Circle fill={HERO_ACCENT} frame={{ width: px(6), height: px(6) }} />
+  return <Circle fill={TIER_GREEN} frame={{ width: px(6), height: px(6) }} />
 }

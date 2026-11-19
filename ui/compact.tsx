@@ -18,16 +18,13 @@ import {
   UsageValue
 } from './atoms'
 import {
-  HERO_ACCENT,
-  HERO_FAINT,
-  HERO_INK,
-  HERO_LINE,
-  HERO_MUTED,
+  INK,
   LINE,
   MUTED,
   TIER_AMBER,
   TIER_GREEN,
   TIER_THIRD,
+  UNIT,
   WIDGET_BG,
   formatUsage,
   px
@@ -55,18 +52,17 @@ function SmallHero({
       width={width}
       height={height}
       inset={px(12)}
-      radius={px(24)}
     >
       <VStack alignment="leading" spacing={px(1)}>
         <HStack spacing={px(5)}>
           <Circle
-            fill={HERO_ACCENT}
+            fill={TIER_GREEN}
             frame={{ width: px(5), height: px(5) }}
           />
           <Text
             font={px(15)}
             fontWeight="medium"
-            foregroundStyle={HERO_MUTED}
+            foregroundStyle={MUTED}
             lineLimit={1}
           >
             本月
@@ -76,21 +72,21 @@ function SmallHero({
           value={formatUsage(summary.monthUsage)}
           fontSize={monthSize}
           unitSize={px(15)}
-          color={HERO_INK}
-          unitColor={HERO_FAINT}
+          color={INK}
+          unitColor={UNIT}
           weight="bold"
         />
       </VStack>
       <Spacer minLength={0} />
       <Rectangle
-        fill={HERO_LINE}
+        fill={LINE}
         frame={{ width: px(1), height: px(60) }}
       />
       <VStack alignment="leading" spacing={px(1)}>
         <Text
           font={px(14)}
           fontWeight="medium"
-          foregroundStyle={HERO_MUTED}
+          foregroundStyle={MUTED}
           lineLimit={1}
         >
           昨日
@@ -99,8 +95,8 @@ function SmallHero({
           value={formatUsage(summary.yesterdayUsage)}
           fontSize={yesterdaySize}
           unitSize={px(12)}
-          color={HERO_INK}
-          unitColor={HERO_FAINT}
+          color={INK}
+          unitColor={UNIT}
         />
       </VStack>
     </HeroSurface>

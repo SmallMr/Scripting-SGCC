@@ -18,11 +18,6 @@ import {
   FUTURE_BG,
   GRID_MARK_URL,
   HEAT_BG,
-  HERO_BOTTOM,
-  HERO_FAINT,
-  HERO_INK,
-  HERO_MUTED,
-  HERO_TOP,
   INK,
   LINE,
   MAX_BG,
@@ -45,18 +40,16 @@ import {
 
 const CLEAR = 'rgba(0,0,0,0)'
 
-/** 主数据卡：深绿渐变的单一视觉焦点，避免把内容切成许多小卡片。 */
+/** 白底摘要区：不铺整块底色，用字号、留白和细线建立层级。 */
 export function HeroSurface({
   width,
   height,
   inset = px(24),
-  radius = px(32),
   children
 }: {
   width: number
   height: number
   inset?: number
-  radius?: number
   children?: any
 }) {
   return (
@@ -64,16 +57,6 @@ export function HeroSurface({
       alignment="center"
       spacing={0}
       frame={{ width, height }}
-      background={
-        <RoundedRectangle
-          cornerRadius={radius}
-          fill={{
-            colors: [HERO_TOP, HERO_BOTTOM],
-            startPoint: 'top',
-            endPoint: 'bottom'
-          }}
-        />
-      }
     >
       <HStack
         alignment="center"
@@ -252,7 +235,7 @@ export function HeroMetaLine({
       <Text
         font={labelSize}
         fontWeight="medium"
-        foregroundStyle={HERO_MUTED}
+        foregroundStyle={MUTED}
         lineLimit={1}
         frame={{ width: labelWidth, alignment: 'leading' }}
       >
@@ -263,21 +246,21 @@ export function HeroMetaLine({
         value={formatUsage(value)}
         fontSize={valueSize}
         unitSize={unitSize}
-        color={HERO_INK}
-        unitColor={HERO_FAINT}
+        color={INK}
+        unitColor={UNIT}
       />
       {money != null ? (
         <Text
           font={px(13)}
           fontWeight="medium"
-          foregroundStyle={HERO_FAINT}
+          foregroundStyle={FAINT}
           lineLimit={1}
         >
           ·
         </Text>
       ) : null}
       {money != null ? (
-        <MoneyAmount value={money} fontSize={moneySize} color={HERO_MUTED} />
+        <MoneyAmount value={money} fontSize={moneySize} />
       ) : null}
     </HStack>
   )
@@ -596,7 +579,8 @@ export function DailyBars({
               fill={LINE}
               frame={{ width: columnWidth - px(4), height: px(1) }}
             />
-            <Capsule
+            <RoundedRectangle
+              cornerRadius={count <= 7 ? px(6) : px(99)}
               fill={
                 isToday
                   ? {

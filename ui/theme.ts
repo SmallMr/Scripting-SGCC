@@ -10,21 +10,8 @@ export const MUTED = palette('#61716A', '#BECBC5')
 export const QUIET = palette('#7B8A83', '#9EAEA7')
 export const FAINT = palette('#A0ACA6', '#6F7E77')
 export const LINE = palette('#E4ECE8', '#2C3A34')
-export const TILE = palette('#EFF5F2', '#1F2C27')
-export const TILE_SOFT = palette('#F6F9F8', '#1A2420')
 export const MONEY = palette('#55645E', '#C7D1CC')
 export const UNIT = palette('#788881', '#AAB8B2')
-export const AMBER_TEXT = palette('#765316', '#E3C78D')
-
-/** 主数据卡固定使用深绿渐变，在白底和深色桌面上都有清楚层级。 */
-export const HERO_TOP = '#174A40'
-export const HERO_BOTTOM = '#0A2C26'
-export const HERO_INK = '#F8FCFA'
-export const HERO_MUTED = '#B5D8CC'
-export const HERO_FAINT = '#84B4A6'
-export const HERO_LINE = 'rgba(255,255,255,0.16)'
-export const HERO_PILL = 'rgba(255,255,255,0.10)'
-export const HERO_ACCENT = '#8BE0C8'
 
 export const RED = '#C96A60'
 export const RED_TEXT = '#AC4C43'
@@ -35,7 +22,6 @@ export const AMBER_TEXT_ON_LIGHT = '#91641E'
 export const TIER_GREEN = '#159B7E'
 export const TIER_AMBER = '#E0A84C'
 export const TIER_THIRD = '#C89674'
-export const TIER_REST = '#DFC4B1'
 
 export const MAX_BG = palette('#FBEAE7', '#3C2724')
 export const MIN_BG = palette('#EAF2FA', '#20303E')
