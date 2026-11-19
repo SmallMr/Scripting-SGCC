@@ -1,6 +1,6 @@
 import { Gauge, HStack, Image, Spacer, Text, VStack, Widget } from 'scripting'
 import { TIER_CAPTIONS, tierPosition } from '../core/usage'
-import { INK, INK_MUTED, legacyPt } from './theme'
+import { INK, MUTED } from './theme'
 import type { WidgetViewProps } from './model'
 
 export function LockScreenWidgetView({ summary, settings }: WidgetViewProps) {
@@ -95,7 +95,7 @@ export function FailureView({ message }: { message: string }) {
       <Text font={14} fontWeight="bold" foregroundStyle={INK}>
         网上国网
       </Text>
-      <Text font={12} minScaleFactor={0.6} foregroundStyle={INK_MUTED}>
+      <Text font={12} minScaleFactor={0.6} foregroundStyle={MUTED}>
         {message}
       </Text>
       <Spacer />

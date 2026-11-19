@@ -1,103 +1,285 @@
-import { HStack, RoundedRectangle, Spacer, Text, VStack, Widget } from 'scripting'
-import { pickRecentBars, tierPosition } from '../core/usage'
-import { GridMark, TierRibbon, UsageColumns } from './atoms'
-import { CLEAR, INK, INK_MUTED, TILE, legacyPt } from './theme'
+import {
+  HStack,
+  Rectangle,
+  RoundedRectangle,
+  VStack,
+  Widget
+} from 'scripting'
+import { tierDisplay } from '../core/usage'
+import type { CompactStyle } from '../core/settings'
+import {
+  BrandHeader,
+  DataRow,
+  MetricTile,
+  TierPanel
+} from './atoms'
+import { WIDGET_BG, px } from './theme'
 import type { WidgetViewProps } from './model'
 
-export function CompactWidgetView({ summary, settings }: WidgetViewProps) {
-  const columns = pickRecentBars(summary, {
-    unit: settings.dimension,
-    count: settings.barCount,
-    firstCap: settings.oneLevelPq,
-    secondCap: settings.twoLevelPq
-  })
-  const position = tierPosition(
+const CLEAR = 'rgba(0,0,0,0)'
+
+function ThreeItemLayout({
+  props,
+  width,
+  height
+}: {
+  props: WidgetViewProps
+  width: number
+  height: number
+}) {
+  const { summary } = props
+  const gap = px(7)
+  const rowHeight = (height - gap) / 2
+  const halfWidth = (width - gap) / 2
+  return (
+    <VStack alignment="leading" spacing={gap} frame={{ width, height }}>
+      <HStack spacing={gap} frame={{ width, height: rowHeight }}>
+        <MetricTile
+          label="昨日"
+          value={summary.yesterdayUsage}
+          width={halfWidth}
+          height={rowHeight}
+          labelSize={px(11)}
+          valueSize={px(24)}
+          unitSize={px(10)}
+          gap={px(6)}
+          inset={px(12)}
+        />
+        <MetricTile
+          label="本月"
+          value={summary.monthUsage}
+          width={halfWidth}
+          height={rowHeight}
+          labelSize={px(11)}
+          valueSize={px(24)}
+          unitSize={px(10)}
+          gap={px(6)}
+          inset={px(12)}
+        />
+      </HStack>
+      <MetricTile
+        label="上月"
+        value={summary.previousUsage}
+        money={summary.previousCost}
+        width={width}
+        height={rowHeight}
+        labelSize={px(11)}
+        valueSize={px(24)}
+        unitSize={px(10)}
+        moneySize={px(14)}
+        gap={px(6)}
+        inset={px(12)}
+        divider
+      />
+    </VStack>
+  )
+}
+
+function FourRowLayout({
+  props,
+  width,
+  height
+}: {
+  props: WidgetViewProps
+  width: number
+  height: number
+}) {
+  const { summary } = props
+  const rowHeight = height / 4
+  return (
+    <VStack
+      alignment="center"
+      spacing={0}
+      frame={{ width, height }}
+      background={
+        <RoundedRectangle cornerRadius={px(14)} fill="#F3F7F6" />
+      }
+    >
+      <DataRow
+        label="昨日"
+        value={summary.yesterdayUsage}
+        width={width}
+        height={rowHeight}
+        first
+        labelWidth={px(24)}
+        labelSize={px(11)}
+        valueSize={px(21)}
+        unitSize={px(10)}
+        moneySize={px(11.5)}
+        inset={px(12)}
+      />
+      <DataRow
+        label="本月"
+        value={summary.monthUsage}
+        width={width}
+        height={rowHeight}
+        labelWidth={px(24)}
+        labelSize={px(11)}
+        valueSize={px(21)}
+        unitSize={px(10)}
+        moneySize={px(11.5)}
+        inset={px(12)}
+      />
+      <DataRow
+        label="上月"
+        value={summary.previousUsage}
+        money={summary.previousCost}
+        width={width}
+        height={rowHeight}
+        labelWidth={px(24)}
+        labelSize={px(11)}
+        valueSize={px(21)}
+        unitSize={px(10)}
+        moneySize={px(11.5)}
+        inset={px(12)}
+      />
+      <DataRow
+        label="本年"
+        value={summary.yearUsage}
+        money={summary.yearCost}
+        width={width}
+        height={rowHeight}
+        labelWidth={px(24)}
+        labelSize={px(11)}
+        valueSize={px(21)}
+        unitSize={px(10)}
+        moneySize={px(11.5)}
+        inset={px(12)}
+      />
+    </VStack>
+  )
+}
+
+function FourModuleLayout({
+  props,
+  width,
+  height
+}: {
+  props: WidgetViewProps
+  width: number
+  height: number
+}) {
+  const { summary } = props
+  const gap = px(6)
+  const topHeight = px(50)
+  const ticketHeight = (height - topHeight - gap * 2) / 2
+  const halfWidth = (width - gap) / 2
+  return (
+    <VStack alignment="leading" spacing={gap} frame={{ width, height }}>
+      <HStack spacing={gap} frame={{ width, height: topHeight }}>
+        <MetricTile
+          label="昨日"
+          value={summary.yesterdayUsage}
+          width={halfWidth}
+          height={topHeight}
+          labelSize={px(10.5)}
+          valueSize={px(19)}
+          unitSize={px(9)}
+          gap={px(3)}
+          inset={px(12)}
+        />
+        <MetricTile
+          label="本月"
+          value={summary.monthUsage}
+          width={halfWidth}
+          height={topHeight}
+          labelSize={px(10.5)}
+          valueSize={px(19)}
+          unitSize={px(9)}
+          gap={px(3)}
+          inset={px(12)}
+        />
+      </HStack>
+      <MetricTile
+        label="上月"
+        value={summary.previousUsage}
+        money={summary.previousCost}
+        width={width}
+        height={ticketHeight}
+        labelSize={px(10.5)}
+        valueSize={px(20)}
+        unitSize={px(10)}
+        moneySize={px(12)}
+        gap={px(3)}
+        inset={px(12)}
+      />
+      <MetricTile
+        label="本年"
+        value={summary.yearUsage}
+        money={summary.yearCost}
+        width={width}
+        height={ticketHeight}
+        labelSize={px(10.5)}
+        valueSize={px(20)}
+        unitSize={px(10)}
+        moneySize={px(12)}
+        gap={px(3)}
+        inset={px(12)}
+      />
+    </VStack>
+  )
+}
+
+export function CompactWidgetView(props: WidgetViewProps) {
+  const { summary, settings, syncedAt } = props
+  const width = Widget.displaySize.width
+  const height = Widget.displaySize.height
+  const padding = px(16)
+  const innerWidth = width - padding * 2
+  const innerHeight = height - padding * 2
+  const brandHeight = px(28)
+  const brandGap = px(10)
+  const tierGap = px(10)
+  const tierHeight = px(68)
+  const contentHeight =
+    innerHeight - brandHeight - brandGap - tierGap - tierHeight
+  const tier = tierDisplay(
     summary.tierUsage,
     settings.oneLevelPq,
     settings.twoLevelPq
   )
+  const mode: CompactStyle = settings.smallWidgetMode || 'modules'
 
   return (
     <VStack
       alignment="leading"
       spacing={0}
-      padding={12}
+      padding={padding}
       frame={{ maxWidth: 'infinity', maxHeight: 'infinity' }}
-      widgetBackground={{
-        light: {
-          stops: [
-            { color: '#FFFFFF', location: 0.65 },
-            { color: 'rgba(0,112,107,0.18)', location: 1 }
-          ],
-          startPoint: 'topLeading',
-          endPoint: 'bottomTrailing'
-        },
-        dark: '#171A18'
-      }}
+      widgetBackground={WIDGET_BG}
     >
-      <VStack
-        spacing={0}
-        clipShape={{ type: 'rect', cornerRadius: 6 }}
-        background={
-          <RoundedRectangle
-            cornerRadius={6}
-            fill={{
-              light: {
-                colors: [CLEAR, TILE.light],
-                startPoint: 'top',
-                endPoint: 'bottom'
-              },
-              dark: {
-                colors: [CLEAR, TILE.dark],
-                startPoint: 'top',
-                endPoint: 'bottom'
-              }
-            }}
-          />
-        }
-      >
-        <UsageColumns
-          items={columns}
-          height={legacyPt(68) - legacyPt(10) * 2}
-          columnWidth={legacyPt(8)}
-          inset={{ vertical: legacyPt(10), horizontal: legacyPt(8) }}
+      <BrandHeader
+        syncedAt={syncedAt}
+        logoSize={brandHeight}
+        fontSize={px(11)}
+        gap={brandGap}
+      />
+      {mode === 'three' ? (
+        <ThreeItemLayout
+          props={props}
+          width={innerWidth}
+          height={contentHeight}
         />
-        {settings.showStepProgress ? (
-          <TierRibbon
-            tier={position.tier}
-            percent={position.percent}
-            width={Widget.displaySize.width - 24}
-          />
-        ) : null}
-      </VStack>
-      <Spacer minLength={legacyPt(4)} />
-      <VStack
-        alignment="leading"
-        spacing={legacyPt(6)}
-        padding={{ bottom: legacyPt(2) }}
-      >
-        <Text font={legacyPt(12)} foregroundStyle={INK_MUTED} lineLimit={1}>
-          {`余额${
-            Number(summary.previousCost)
-              ? `(上期:${summary.previousCost})`
-              : ''
-          }`}
-        </Text>
-        <HStack>
-          <Text
-            font={legacyPt(24)}
-            fontWeight="bold"
-            fontDesign="rounded"
-            foregroundStyle={INK}
-            lineLimit={1}
-            minScaleFactor={0.5}
-          >
-            {summary.balance}
-          </Text>
-          <Spacer />
-          <GridMark size={legacyPt(24)} />
-        </HStack>
-      </VStack>
+      ) : mode === 'compact' ? (
+        <FourRowLayout
+          props={props}
+          width={innerWidth}
+          height={contentHeight}
+        />
+      ) : (
+        <FourModuleLayout
+          props={props}
+          width={innerWidth}
+          height={contentHeight}
+        />
+      )}
+      <Rectangle fill={CLEAR} frame={{ width: 1, height: tierGap }} />
+      <TierPanel
+        detail={tier.detail}
+        fraction={tier.fraction}
+        width={innerWidth}
+        height={tierHeight}
+      />
     </VStack>
   )
 }

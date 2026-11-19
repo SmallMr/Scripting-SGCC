@@ -1,179 +1,119 @@
+import { HStack, Rectangle, Spacer, VStack, Widget } from 'scripting'
+import { recentCalendarDays, tierDisplay } from '../core/usage'
 import {
-  HStack,
-  Image,
-  RoundedRectangle,
-  Spacer,
-  Text,
-  VStack,
-  Widget
-} from 'scripting'
-import {
-  TIER_CAPTIONS,
-  pickRecentBars,
-  tierPosition
-} from '../core/usage'
-import { GridMark, StatTile, TierTicks, UsageColumns } from './atoms'
-import { CLEAR, INK, INK_MUTED, TILE, clockText, legacyPt } from './theme'
+  BrandHeader,
+  DailyChart,
+  MetricTile,
+  SectionTitle,
+  TierPanel
+} from './atoms'
+import { WIDGET_BG, px } from './theme'
 import type { WidgetViewProps } from './model'
+
+const CLEAR = 'rgba(0,0,0,0)'
 
 export function WideWidgetView({
   summary,
   settings,
-  syncedAt,
-  warning
+  syncedAt
 }: WidgetViewProps) {
-  const columns = pickRecentBars(summary, {
-    unit: settings.dimension,
-    count: settings.barCount,
-    firstCap: settings.oneLevelPq,
-    secondCap: settings.twoLevelPq
-  })
-  const position = tierPosition(
+  const width = Widget.displaySize.width
+  const padding = px(16)
+  const innerWidth = width - padding * 2
+  const gap = px(8)
+  const available = innerWidth - gap * 3
+  const unit = available / 4.12
+  const tileWidths = [unit * 0.78, unit * 0.9, unit * 1.22, unit * 1.22]
+  const tier = tierDisplay(
     summary.tierUsage,
     settings.oneLevelPq,
     settings.twoLevelPq
   )
-
-  const padding = legacyPt(12)
-  const sideInset = legacyPt(4)
-  const columnWidth = legacyPt(6)
-  const columnGap = legacyPt(6)
-  const leftWidth =
-    Math.max(settings.barCount, 7) * (columnWidth + columnGap) -
-    columnGap +
-    sideInset * 2
-  const columnBlockGap = legacyPt(12)
-  const stepPaddingX = legacyPt(12)
-  const rightWidth =
-    Widget.displaySize.width - padding * 2 - leftWidth - columnBlockGap
+  const recent = recentCalendarDays(summary.days, 14)
 
   return (
-    <HStack
-      alignment="top"
-      spacing={columnBlockGap}
+    <VStack
+      alignment="leading"
+      spacing={0}
       padding={padding}
       frame={{ maxWidth: 'infinity', maxHeight: 'infinity' }}
-      widgetBackground={{
-        light: {
-          stops: [
-            { color: 'rgba(0,112,107,0.18)', location: 0 },
-            { color: '#FFFFFF', location: 0.35 }
-          ],
-          startPoint: 'topLeading',
-          endPoint: { x: 0.45, y: 1 }
-        },
-        dark: '#171A18'
-      }}
+      widgetBackground={WIDGET_BG}
     >
-      <VStack
-        alignment="leading"
-        spacing={0}
-        padding={{ horizontal: sideInset, bottom: legacyPt(4) }}
-        frame={{
-          width: leftWidth,
-          maxHeight: 'infinity',
-          alignment: 'topLeading'
-        }}
-        background={
-          <RoundedRectangle
-            cornerRadius={legacyPt(6)}
-            fill={{
-              light: {
-                stops: [
-                  { color: CLEAR, location: 0.4 },
-                  { color: TILE.light, location: 1 }
-                ],
-                startPoint: 'top',
-                endPoint: 'bottom'
-              },
-              dark: {
-                stops: [
-                  { color: CLEAR, location: 0.4 },
-                  { color: TILE.dark, location: 1 }
-                ],
-                startPoint: 'top',
-                endPoint: 'bottom'
-              }
-            }}
-          />
-        }
-      >
-        <GridMark size={legacyPt(24)} />
-        <Spacer minLength={legacyPt(12)} />
-        <Text font={legacyPt(10)} foregroundStyle={INK_MUTED}>
-          {summary.hasArrears ? '待缴电费' : '剩余电费'}
-        </Text>
-        <Text
-          font={legacyPt(18)}
-          fontWeight="bold"
-          fontDesign="rounded"
-          foregroundStyle={INK}
-          lineLimit={1}
-          minScaleFactor={0.5}
-        >
-          {summary.balance}
-        </Text>
-        <Spacer minLength={0} />
-        <UsageColumns
-          items={columns}
-          height={legacyPt(40) - legacyPt(4) * 2}
-          columnWidth={columnWidth}
-          gap={columnGap}
-        />
-      </VStack>
+      <BrandHeader
+        syncedAt={syncedAt}
+        logoSize={px(28)}
+        fontSize={px(11)}
+        gap={px(8)}
+      />
 
-      <VStack
-        spacing={legacyPt(6)}
-        frame={{ maxWidth: 'infinity', maxHeight: 'infinity' }}
-      >
-        <HStack spacing={legacyPt(8)}>
-          <StatTile label="上期电费" value={summary.previousCost} />
-          <StatTile label="上期电量" value={summary.previousUsage} />
-        </HStack>
-        <HStack spacing={legacyPt(8)}>
-          <StatTile label="年度电费" value={summary.yearCost} />
-          <StatTile label="年度电量" value={summary.yearUsage} />
-        </HStack>
-        <VStack
-          alignment="leading"
-          spacing={legacyPt(4)}
-          frame={{
-            maxWidth: 'infinity',
-            maxHeight: 'infinity',
-            alignment: 'topLeading'
-          }}
-          padding={{ vertical: legacyPt(6), horizontal: stepPaddingX }}
-          background={<RoundedRectangle cornerRadius={legacyPt(6)} fill={TILE} />}
-        >
-          <HStack spacing={2}>
-            <Text font={legacyPt(8)} foregroundStyle={INK_MUTED} lineLimit={1}>
-              {settings.showStepProgress
-                ? `第${TIER_CAPTIONS[position.tier]}梯度：${Number(
-                    (position.percent * 100).toFixed(2)
-                  )}%`
-                : `阶梯电量：${summary.tierUsage}`}
-            </Text>
-            <Spacer />
-            <Image
-              systemName={
-                warning ? 'exclamationmark.triangle' : 'clock.arrow.circlepath'
-              }
-              font={legacyPt(8)}
-              foregroundStyle={warning ? 'systemOrange' : INK_MUTED}
-            />
-            <Text font={legacyPt(8)} foregroundStyle={INK_MUTED}>
-              {clockText(syncedAt)}
-            </Text>
-          </HStack>
-          {settings.showStepProgress ? (
-            <TierTicks
-              tier={position.tier}
-              percent={position.percent}
-              width={rightWidth - stepPaddingX * 2}
-            />
-          ) : null}
-        </VStack>
-      </VStack>
-    </HStack>
+      <HStack spacing={gap} frame={{ width: innerWidth, height: px(60) }}>
+        <MetricTile
+          label="昨日"
+          value={summary.yesterdayUsage}
+          width={tileWidths[0]}
+          height={px(60)}
+          labelSize={px(10)}
+          valueSize={px(17)}
+          unitSize={px(11)}
+          gap={px(4)}
+          inset={px(10)}
+        />
+        <MetricTile
+          label="本月"
+          value={summary.monthUsage}
+          width={tileWidths[1]}
+          height={px(60)}
+          labelSize={px(10)}
+          valueSize={px(17)}
+          unitSize={px(11)}
+          gap={px(4)}
+          inset={px(10)}
+        />
+        <MetricTile
+          label="上月"
+          value={summary.previousUsage}
+          money={summary.previousCost}
+          width={tileWidths[2]}
+          height={px(60)}
+          labelSize={px(10)}
+          valueSize={px(17)}
+          unitSize={px(11)}
+          moneySize={px(11)}
+          gap={px(4)}
+          inset={px(10)}
+        />
+        <MetricTile
+          label="本年"
+          value={summary.yearUsage}
+          money={summary.yearCost}
+          width={tileWidths[3]}
+          height={px(60)}
+          labelSize={px(10)}
+          valueSize={px(17)}
+          unitSize={px(11)}
+          moneySize={px(11)}
+          gap={px(4)}
+          inset={px(10)}
+        />
+      </HStack>
+
+      <Rectangle fill={CLEAR} frame={{ width: 1, height: px(8) }} />
+      <SectionTitle
+        title="最近14天"
+        trailing="日用电量"
+        titleSize={px(13)}
+        trailingSize={px(10)}
+      />
+      <Rectangle fill={CLEAR} frame={{ width: 1, height: px(5) }} />
+      <DailyChart items={recent} width={innerWidth} height={px(80)} />
+      <Spacer minLength={0} />
+
+      <TierPanel
+        detail={tier.detail}
+        fraction={tier.fraction}
+        width={innerWidth}
+        height={px(68)}
+      />
+    </VStack>
   )
 }
