@@ -1,13 +1,35 @@
-import { HStack, Rectangle, Spacer, VStack, Widget } from 'scripting'
+import {
+  Circle,
+  HStack,
+  Rectangle,
+  Spacer,
+  Text,
+  VStack,
+  Widget
+} from 'scripting'
 import { recentCalendarDays, tierDisplay } from '../core/usage'
 import {
   BrandHeader,
-  DailyGrid,
-  MetricTile,
+  DailyBars,
+  HeroMetaLine,
+  HeroSurface,
   SectionTitle,
-  TierPanel
+  TierPanel,
+  UsageValue
 } from './atoms'
-import { LINE, WIDGET_BG, px } from './theme'
+import {
+  HERO_ACCENT,
+  HERO_FAINT,
+  HERO_INK,
+  HERO_LINE,
+  HERO_MUTED,
+  TIER_AMBER,
+  TIER_GREEN,
+  TIER_THIRD,
+  WIDGET_BG,
+  formatUsage,
+  px
+} from './theme'
 import type { WidgetViewProps } from './model'
 
 const CLEAR = 'rgba(0,0,0,0)'
@@ -20,19 +42,13 @@ export function WideWidgetView({
   const width = Widget.displaySize.width
   const padding = px(16)
   const innerWidth = width - padding * 2
-  const dividerWidth = px(1)
-  const available = innerWidth - dividerWidth * 3
-  const tileWidths = [
-    available * 0.15,
-    available * 0.22,
-    available * 0.3,
-    available * 0.33
-  ]
   const tier = tierDisplay(
     summary.tierUsage,
     settings.oneLevelPq,
     settings.twoLevelPq
   )
+  const accent =
+    tier.tier === 1 ? TIER_GREEN : tier.tier === 2 ? TIER_AMBER : TIER_THIRD
   const recent = recentCalendarDays(summary.days, 14)
 
   return (
@@ -45,90 +61,101 @@ export function WideWidgetView({
     >
       <BrandHeader
         syncedAt={syncedAt}
-        logoSize={px(30)}
-        fontSize={px(17)}
-        gap={px(6)}
+        logoSize={px(28)}
+        fontSize={px(15)}
+        gap={px(4)}
       />
 
-      <HStack spacing={0} frame={{ width: innerWidth, height: px(68) }}>
-        <MetricTile
-          label="昨日"
-          value={summary.yesterdayUsage}
-          width={tileWidths[0]}
-          height={px(68)}
-          labelSize={px(17)}
-          valueSize={px(33)}
-          unitSize={px(16)}
-          gap={px(6)}
-          inset={0}
-        />
+      <HeroSurface
+        width={innerWidth}
+        height={px(86)}
+        inset={px(12)}
+        radius={px(24)}
+      >
+        <VStack alignment="leading" spacing={px(1)}>
+          <HStack spacing={px(5)}>
+            <Circle
+              fill={HERO_ACCENT}
+              frame={{ width: px(5), height: px(5) }}
+            />
+            <Text
+              font={px(15)}
+              fontWeight="medium"
+              foregroundStyle={HERO_MUTED}
+              lineLimit={1}
+            >
+              本月
+            </Text>
+          </HStack>
+          <UsageValue
+            value={formatUsage(summary.monthUsage)}
+            fontSize={px(50)}
+            unitSize={px(15)}
+            color={HERO_INK}
+            unitColor={HERO_FAINT}
+            weight="bold"
+          />
+        </VStack>
+        <Spacer minLength={0} />
         <Rectangle
-          fill={LINE}
-          frame={{ width: dividerWidth, height: px(48) }}
+          fill={HERO_LINE}
+          frame={{ width: px(1), height: px(64) }}
         />
-        <MetricTile
-          label="本月"
-          value={summary.monthUsage}
-          width={tileWidths[1]}
-          height={px(68)}
-          labelSize={px(17)}
-          valueSize={px(33)}
-          unitSize={px(16)}
-          gap={px(6)}
-          inset={0}
-        />
-        <Rectangle
-          fill={LINE}
-          frame={{ width: dividerWidth, height: px(48) }}
-        />
-        <MetricTile
-          label="上月"
-          value={summary.previousUsage}
-          money={summary.previousCost}
-          width={tileWidths[2]}
-          height={px(68)}
-          labelSize={px(17)}
-          valueSize={px(33)}
-          unitSize={px(16)}
-          moneySize={px(19)}
-          gap={px(6)}
-          inset={0}
-        />
-        <Rectangle
-          fill={LINE}
-          frame={{ width: dividerWidth, height: px(48) }}
-        />
-        <MetricTile
-          label="本年"
-          value={summary.yearUsage}
-          money={summary.yearCost}
-          width={tileWidths[3]}
-          height={px(68)}
-          labelSize={px(17)}
-          valueSize={px(33)}
-          unitSize={px(16)}
-          moneySize={px(19)}
-          gap={px(6)}
-          inset={0}
-        />
-      </HStack>
+        <VStack
+          alignment="leading"
+          spacing={px(1)}
+          frame={{ width: px(290) }}
+        >
+          <HeroMetaLine
+            label="昨日"
+            value={summary.yesterdayUsage}
+            labelWidth={px(32)}
+            labelSize={px(14)}
+            valueSize={px(20)}
+            unitSize={px(11)}
+            moneySize={px(14)}
+          />
+          <HeroMetaLine
+            label="上月"
+            value={summary.previousUsage}
+            money={summary.previousCost}
+            labelWidth={px(32)}
+            labelSize={px(14)}
+            valueSize={px(20)}
+            unitSize={px(11)}
+            moneySize={px(14)}
+          />
+          <HeroMetaLine
+            label="本年"
+            value={summary.yearUsage}
+            money={summary.yearCost}
+            labelWidth={px(32)}
+            labelSize={px(14)}
+            valueSize={px(20)}
+            unitSize={px(11)}
+            moneySize={px(14)}
+          />
+        </VStack>
+      </HeroSurface>
 
-      <Rectangle fill={CLEAR} frame={{ width: 1, height: px(6) }} />
+      <Rectangle fill={CLEAR} frame={{ width: 1, height: px(5) }} />
       <SectionTitle
         title="最近14天"
-        trailing="日用电量"
-        titleSize={px(19)}
-        trailingSize={px(16)}
+        trailing="日用电量 · 度"
+        titleSize={px(17)}
+        trailingSize={px(13)}
+        height={px(18)}
       />
       <Rectangle fill={CLEAR} frame={{ width: 1, height: px(2) }} />
-      <DailyGrid items={recent} width={innerWidth} height={px(90)} />
-      <Spacer minLength={0} />
+      <DailyBars items={recent} width={innerWidth} height={px(82)} />
 
+      <Rectangle fill={CLEAR} frame={{ width: 1, height: px(5) }} />
       <TierPanel
         detail={tier.detail}
         fraction={tier.fraction}
         width={innerWidth}
-        height={px(56)}
+        accent={accent}
+        height={px(54)}
       />
     </VStack>
   )

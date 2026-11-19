@@ -11,26 +11,80 @@ import {
   ZStack
 } from 'scripting'
 import {
-  AMBER_TEXT,
+  AMBER_TEXT_ON_LIGHT,
+  BLANK_BG,
+  BLUE_TEXT,
   FAINT,
+  FUTURE_BG,
   GRID_MARK_URL,
+  HEAT_BG,
+  HERO_BOTTOM,
+  HERO_FAINT,
+  HERO_INK,
+  HERO_MUTED,
+  HERO_TOP,
   INK,
   LINE,
+  MAX_BG,
+  MIN_BG,
   MONEY,
   MUTED,
   QUIET,
+  RED_TEXT,
   TIER_AMBER,
   TIER_GREEN,
-  TIER_REST,
-  TILE,
+  TIER_THIRD,
+  TODAY_BG,
   UNIT,
   formatMoney,
   formatUsage,
   monthStamp,
-  px
+  px,
+  updatedAtText
 } from './theme'
 
 const CLEAR = 'rgba(0,0,0,0)'
+
+/** 主数据卡：深绿渐变的单一视觉焦点，避免把内容切成许多小卡片。 */
+export function HeroSurface({
+  width,
+  height,
+  inset = px(24),
+  radius = px(32),
+  children
+}: {
+  width: number
+  height: number
+  inset?: number
+  radius?: number
+  children?: any
+}) {
+  return (
+    <VStack
+      alignment="center"
+      spacing={0}
+      frame={{ width, height }}
+      background={
+        <RoundedRectangle
+          cornerRadius={radius}
+          fill={{
+            colors: [HERO_TOP, HERO_BOTTOM],
+            startPoint: 'top',
+            endPoint: 'bottom'
+          }}
+        />
+      }
+    >
+      <HStack
+        alignment="center"
+        spacing={px(10)}
+        frame={{ width: width - inset * 2, height }}
+      >
+        {children}
+      </HStack>
+    </VStack>
+  )
+}
 
 export function GridMark({ size }: { size: number }) {
   return (
@@ -43,7 +97,8 @@ export function GridMark({ size }: { size: number }) {
     />
   )
 }
-/** 左上角品牌标识，右上角月份和更新时间；不再重复“国家电网”文字。 */
+
+/** 左上角只保留真实国网标识，右上角用月份和更新时间形成轻量页眉。 */
 export function BrandHeader({
   syncedAt,
   logoSize,
@@ -64,15 +119,26 @@ export function BrandHeader({
       >
         <GridMark size={logoSize} />
         <Spacer />
-        <Text
-          font={fontSize}
-          fontWeight="medium"
-          foregroundStyle={QUIET}
-          lineLimit={1}
-          minScaleFactor={0.7}
-        >
-          {monthStamp(syncedAt)}
-        </Text>
+        <HStack alignment="center" spacing={px(6)}>
+          <Text
+            font={fontSize}
+            fontWeight="semibold"
+            foregroundStyle={MUTED}
+            lineLimit={1}
+          >
+            {monthStamp(syncedAt)}
+          </Text>
+          <Circle fill={FAINT} frame={{ width: px(3), height: px(3) }} />
+          <Text
+            font={fontSize * 0.9}
+            fontWeight="medium"
+            foregroundStyle={FAINT}
+            lineLimit={1}
+            minScaleFactor={0.75}
+          >
+            {updatedAtText(syncedAt)}
+          </Text>
+        </HStack>
       </HStack>
       <Rectangle fill={CLEAR} frame={{ width: 1, height: gap }} />
     </VStack>
@@ -84,6 +150,7 @@ export function UsageValue({
   fontSize,
   unitSize,
   color = INK,
+  unitColor = UNIT,
   weight = 'semibold',
   align = 'leading'
 }: {
@@ -91,17 +158,18 @@ export function UsageValue({
   fontSize: number
   unitSize: number
   color?: unknown
+  unitColor?: unknown
   weight?: string
   align?: 'leading' | 'trailing' | 'center'
 }) {
   return (
-    <HStack alignment="lastTextBaseline" spacing={px(3)}>
+    <HStack alignment="lastTextBaseline" spacing={px(2)}>
       <Text
         font={fontSize}
         fontWeight={weight}
         foregroundStyle={color}
         lineLimit={1}
-        minScaleFactor={0.55}
+        minScaleFactor={0.5}
         multilineTextAlignment={align}
       >
         {value}
@@ -109,7 +177,7 @@ export function UsageValue({
       <Text
         font={unitSize}
         fontWeight="medium"
-        foregroundStyle={UNIT}
+        foregroundStyle={unitColor}
         lineLimit={1}
         minScaleFactor={0.7}
       >
@@ -121,28 +189,30 @@ export function UsageValue({
 
 export function MoneyAmount({
   value,
-  fontSize
+  fontSize,
+  color = MONEY
 }: {
   value: number | string
   fontSize: number
+  color?: unknown
 }) {
   return (
     <HStack alignment="lastTextBaseline" spacing={px(1)}>
       <Text
-        font={fontSize * 0.62}
+        font={fontSize * 0.58}
         fontWeight="medium"
-        foregroundStyle={MONEY}
+        foregroundStyle={color}
         lineLimit={1}
-        minScaleFactor={0.7}
+        minScaleFactor={0.75}
       >
         ¥
       </Text>
       <Text
         font={fontSize}
         fontWeight="medium"
-        foregroundStyle={MONEY}
+        foregroundStyle={color}
         lineLimit={1}
-        minScaleFactor={0.65}
+        minScaleFactor={0.62}
       >
         {formatMoney(value)}
       </Text>
@@ -150,93 +220,128 @@ export function MoneyAmount({
   )
 }
 
-type MetricTileProps = {
-  label: string
-  value: number
-  money?: number | string
-  width: number
-  height: number
-  radius?: number
-  labelSize?: number
-  valueSize?: number
-  unitSize?: number
-  moneySize?: number
-  gap?: number
-  inset?: number
-  divider?: boolean
-  surface?: boolean
-}
-
-/** 上下结构的数据块，内容和底边、顶边的间距保持一致。 */
-export function MetricTile({
+/**
+ * 主卡右侧的指标行。
+ * 标签在左、整组数值和金额靠右，金额不会漂到相邻指标旁边。
+ */
+export function HeroMetaLine({
   label,
   value,
   money,
-  width,
-  height,
-  radius = px(14),
-  labelSize = px(11),
-  valueSize = px(18),
-  unitSize = px(12),
-  moneySize = px(12),
-  gap = px(4),
-  inset = px(10),
-  divider = false,
-  surface = false
-}: MetricTileProps) {
+  labelWidth,
+  labelSize,
+  valueSize,
+  unitSize,
+  moneySize
+}: {
+  label: string
+  value: number
+  money?: number | string
+  labelWidth: number
+  labelSize: number
+  valueSize: number
+  unitSize: number
+  moneySize: number
+}) {
   return (
-    <VStack
-      alignment="center"
-      spacing={0}
-      frame={{ width, height, alignment: 'center' }}
-      background={
-        surface ? (
-          <RoundedRectangle cornerRadius={radius} fill={TILE} />
-        ) : undefined
-      }
-      border={
-        surface ? { color: LINE, width: px(1.5) } : undefined
-      }
+    <HStack
+      alignment="lastTextBaseline"
+      spacing={px(6)}
+      frame={{ maxWidth: 'infinity' }}
     >
-      <Spacer minLength={0} />
-      <VStack
-        alignment="leading"
-        spacing={gap}
-        frame={{ width: width - inset * 2, alignment: 'leading' }}
+      <Text
+        font={labelSize}
+        fontWeight="medium"
+        foregroundStyle={HERO_MUTED}
+        lineLimit={1}
+        frame={{ width: labelWidth, alignment: 'leading' }}
       >
-        <Text
-          font={labelSize}
-          fontWeight="medium"
-          foregroundStyle={MUTED}
-          lineLimit={1}
-          minScaleFactor={0.7}
-        >
-          {label}
-        </Text>
-        <HStack alignment="lastTextBaseline" spacing={px(6)}>
-          <UsageValue
-            value={formatUsage(value)}
-            fontSize={valueSize}
-            unitSize={unitSize}
-          />
-          <Spacer minLength={0} />
-          {money != null && divider ? (
-            <Rectangle
-              fill={LINE}
-              frame={{ width: px(1), height: px(22) }}
-            />
-          ) : null}
-          {money != null ? (
-            <MoneyAmount value={money} fontSize={moneySize} />
-          ) : null}
-        </HStack>
-      </VStack>
+        {label}
+      </Text>
       <Spacer minLength={0} />
-    </VStack>
+      <UsageValue
+        value={formatUsage(value)}
+        fontSize={valueSize}
+        unitSize={unitSize}
+        color={HERO_INK}
+        unitColor={HERO_FAINT}
+      />
+      {money != null ? (
+        <Text
+          font={px(13)}
+          fontWeight="medium"
+          foregroundStyle={HERO_FAINT}
+          lineLimit={1}
+        >
+          ·
+        </Text>
+      ) : null}
+      {money != null ? (
+        <MoneyAmount value={money} fontSize={moneySize} color={HERO_MUTED} />
+      ) : null}
+    </HStack>
   )
 }
 
-/** 小号列表模式的每一行。 */
+/** 白底指标行，数值和金额作为一个整体靠右。 */
+export function MetaLine({
+  label,
+  value,
+  money,
+  labelWidth,
+  labelSize,
+  valueSize,
+  unitSize,
+  moneySize,
+  fill = false
+}: {
+  label: string
+  value: number
+  money?: number | string
+  labelWidth: number
+  labelSize: number
+  valueSize: number
+  unitSize: number
+  moneySize: number
+  fill?: boolean
+}) {
+  return (
+    <HStack
+      alignment="lastTextBaseline"
+      spacing={px(5)}
+      frame={fill ? { maxWidth: 'infinity' } : undefined}
+    >
+      <Text
+        font={labelSize}
+        fontWeight="medium"
+        foregroundStyle={MUTED}
+        lineLimit={1}
+        frame={{ width: labelWidth, alignment: 'leading' }}
+      >
+        {label}
+      </Text>
+      {fill ? <Spacer minLength={0} /> : null}
+      <UsageValue
+        value={formatUsage(value)}
+        fontSize={valueSize}
+        unitSize={unitSize}
+      />
+      {money != null ? (
+        <Text
+          font={px(13)}
+          fontWeight="medium"
+          foregroundStyle={FAINT}
+          lineLimit={1}
+        >
+          ·
+        </Text>
+      ) : null}
+      {money != null ? <MoneyAmount value={money} fontSize={moneySize} /> : null}
+    </HStack>
+  )
+}
+
+/** 小号列表模式的一行；分隔线放在行内，保证四边视觉边距不漂移。 */
 export function DataRow({
   label,
   value,
@@ -248,7 +353,6 @@ export function DataRow({
   valueSize,
   unitSize,
   moneySize,
-  inset,
   labelWidth
 }: {
   label: string
@@ -261,7 +365,6 @@ export function DataRow({
   valueSize: number
   unitSize: number
   moneySize: number
-  inset: number
   labelWidth: number
 }) {
   return (
@@ -275,9 +378,9 @@ export function DataRow({
       ) : null}
       <HStack
         alignment="lastTextBaseline"
-        spacing={px(12)}
+        spacing={px(5)}
         frame={{
-          width: width - inset * 2,
+          width,
           height: height - (first ? 0 : px(1)),
           alignment: 'leading'
         }}
@@ -291,41 +394,54 @@ export function DataRow({
         >
           {label}
         </Text>
+        <Spacer minLength={0} />
         <UsageValue
           value={formatUsage(value)}
           fontSize={valueSize}
           unitSize={unitSize}
         />
-        <Spacer minLength={0} />
+        {money != null ? (
+          <Text
+            font={px(12)}
+            fontWeight="medium"
+            foregroundStyle={FAINT}
+            lineLimit={1}
+          >
+            ·
+          </Text>
+        ) : null}
         {money != null ? <MoneyAmount value={money} fontSize={moneySize} /> : null}
       </HStack>
     </VStack>
   )
 }
 
-/** 三档阶梯固定在同样的宽度里，圆点表示当前年度累计位置。 */
+/**
+ * 三段阶梯进度：不写档位汉字，只用绿 / 琥珀 / 陶土三色和正圆滑块表达。
+ * 滑块位置使用全年累计比例，第三档以后固定落在末端。
+ */
 export function TierPanel({
   detail,
   fraction,
   width,
-  height = px(56)
+  accent,
+  height = px(54)
 }: {
   detail: string
   fraction: number
   width: number
+  accent: string
   height?: number
 }) {
-  const insetX = 0
-  const innerWidth = width - insetX * 2
   const gap = px(4)
-  const segmentWidth = (innerWidth - gap * 2) / 3
-  const knobSize = px(15)
+  const segmentWidth = (width - gap * 2) / 3
+  const knobSize = px(17)
   const trackHeight = px(18)
   const barHeight = px(9)
   const safeFraction = Math.max(0, Math.min(1, fraction))
   const knobCenter = Math.min(
-    innerWidth - knobSize / 2,
-    Math.max(knobSize / 2, innerWidth * safeFraction)
+    width - knobSize / 2,
+    Math.max(knobSize / 2, width * safeFraction)
   )
   return (
     <VStack
@@ -334,30 +450,30 @@ export function TierPanel({
       frame={{ width, height, alignment: 'center' }}
     >
       <Rectangle fill={LINE} frame={{ width, height: px(1) }} />
-      <Rectangle fill={CLEAR} frame={{ width: 1, height: px(5) }} />
       <VStack
         alignment="leading"
         spacing={0}
-        frame={{
-          width: innerWidth,
-          height: height - px(1) - px(5) - px(6)
-        }}
+        frame={{ width, height: height - px(1) }}
       >
-        <HStack spacing={px(8)} frame={{ maxWidth: 'infinity', height: px(24) }}>
+        <Rectangle fill={CLEAR} frame={{ width: 1, height: px(4) }} />
+        <HStack
+          spacing={px(5)}
+          frame={{ maxWidth: 'infinity', height: px(20) }}
+        >
           <Text
-            font={px(18)}
+            font={px(16)}
             fontWeight="medium"
             foregroundStyle={MUTED}
             lineLimit={1}
-            minScaleFactor={0.7}
           >
             阶梯
           </Text>
           <Spacer minLength={0} />
+          <Circle fill={accent} frame={{ width: px(5), height: px(5) }} />
           <Text
-            font={px(18)}
+            font={px(16)}
             fontWeight="semibold"
-            foregroundStyle={AMBER_TEXT}
+            foregroundStyle={INK}
             lineLimit={1}
             minScaleFactor={0.58}
             multilineTextAlignment="trailing"
@@ -366,30 +482,30 @@ export function TierPanel({
           </Text>
         </HStack>
         <Spacer minLength={0} />
-        <ZStack
-          alignment="leading"
-          frame={{ width: innerWidth, height: trackHeight }}
-        >
-          <HStack
-            spacing={gap}
-            frame={{ width: innerWidth, height: barHeight }}
-          >
-            <Capsule fill={TIER_GREEN} frame={{ width: segmentWidth, height: barHeight }} />
-            <Capsule fill={TIER_AMBER} frame={{ width: segmentWidth, height: barHeight }} />
-            <Capsule fill={TIER_REST} frame={{ width: segmentWidth, height: barHeight }} />
+        <ZStack alignment="leading" frame={{ width, height: trackHeight }}>
+          <HStack spacing={gap} frame={{ width, height: barHeight }}>
+            <Capsule
+              fill={TIER_GREEN}
+              frame={{ width: segmentWidth, height: barHeight }}
+            />
+            <Capsule
+              fill={TIER_AMBER}
+              frame={{ width: segmentWidth, height: barHeight }}
+            />
+            <Capsule
+              fill={TIER_THIRD}
+              frame={{ width: segmentWidth, height: barHeight }}
+            />
           </HStack>
           <Circle
             fill="#FFFFFF"
             frame={{ width: knobSize, height: knobSize }}
-            border={{ color: TIER_AMBER, width: px(4) }}
-            offset={{
-              x: knobCenter - knobSize / 2,
-              y: 0
-            }}
+            border={{ color: accent, width: px(4.5) }}
+            offset={{ x: knobCenter - knobSize / 2, y: 0 }}
           />
         </ZStack>
+        <Rectangle fill={CLEAR} frame={{ width: 1, height: px(4) }} />
       </VStack>
-      <Rectangle fill={CLEAR} frame={{ width: 1, height: px(6) }} />
     </VStack>
   )
 }
@@ -397,16 +513,28 @@ export function TierPanel({
 export function SectionTitle({
   title,
   trailing,
-  titleSize = px(14),
-  trailingSize = px(10)
+  titleSize = px(19),
+  trailingSize = px(15),
+  accent = TIER_GREEN,
+  height = px(24)
 }: {
   title: string
   trailing: string
   titleSize?: number
   trailingSize?: number
+  accent?: string
+  height?: number
 }) {
   return (
-    <HStack spacing={px(8)} frame={{ maxWidth: 'infinity' }}>
+    <HStack
+      spacing={px(7)}
+      frame={{ maxWidth: 'infinity', height }}
+    >
+      <RoundedRectangle
+        cornerRadius={px(2)}
+        fill={accent}
+        frame={{ width: px(4), height: px(18) }}
+      />
       <Text font={titleSize} fontWeight="bold" foregroundStyle={INK} lineLimit={1}>
         {title}
       </Text>
@@ -416,6 +544,7 @@ export function SectionTitle({
         fontWeight="medium"
         foregroundStyle={QUIET}
         lineLimit={1}
+        minScaleFactor={0.7}
       >
         {trailing}
       </Text>
@@ -423,73 +552,78 @@ export function SectionTitle({
   )
 }
 
-/** 两行七列，避免 14 根细柱把日期和数值挤在一起。 */
-export function DailyGrid({
+/** 14 天柱状趋势：日期、柱体、数值分三层，数值不会被柱体遮挡。 */
+export function DailyBars({
   items,
   width,
-  height = px(88)
+  height = px(70)
 }: {
   items: { day: number; value: number; isToday: boolean }[]
   width: number
-  height?: number
+  height: number
 }) {
-  const columns = 7
-  const rowGap = px(4)
-  const columnWidth = width / columns
-  const rowHeight = (height - rowGap) / 2
-  const chunks = [items.slice(0, columns), items.slice(columns, columns * 2)]
+  const gap = px(2)
+  const columnWidth = (width - gap * 13) / 14
+  const dateHeight = px(13)
+  const valueHeight = px(16)
+  const barArea = height - dateHeight - valueHeight - px(1)
+  const peak = Math.max(1, ...items.map(({ value }) => value))
   return (
-    <VStack alignment="leading" spacing={rowGap} frame={{ width, height }}>
-      {chunks.map((chunk, row) => (
-        <HStack
-          key={row}
+    <HStack spacing={gap} frame={{ width, height }}>
+      {items.map(({ value, day, isToday }, index) => (
+        <VStack
+          key={`${index}-${day}`}
           spacing={0}
-          frame={{ width, height: rowHeight }}
+          frame={{ width: columnWidth, height, alignment: 'center' }}
         >
-          {chunk.map(({ value, day, isToday }, index) => (
-            <VStack
-              key={`${row}-${index}-${day}`}
-              alignment="leading"
-              spacing={0}
+          <Text
+            font={px(12)}
+            fontWeight="medium"
+            foregroundStyle={isToday ? AMBER_TEXT_ON_LIGHT : QUIET}
+            lineLimit={1}
+          >
+            {day}
+          </Text>
+          <ZStack
+            alignment="bottom"
+            frame={{ width: columnWidth, height: barArea }}
+          >
+            <Rectangle
+              fill={LINE}
+              frame={{ width: columnWidth - px(4), height: px(1) }}
+            />
+            <Capsule
+              fill={
+                isToday
+                  ? {
+                      colors: ['#F0C36E', '#D39132'],
+                      startPoint: 'top',
+                      endPoint: 'bottom'
+                    }
+                  : {
+                      colors: ['#69CDB5', '#0D876E'],
+                      startPoint: 'top',
+                      endPoint: 'bottom'
+                    }
+              }
               frame={{
-                width: columnWidth,
-                height: rowHeight,
-                alignment: 'leading'
+                width: px(9),
+                height: Math.max(px(4), (value / peak) * (barArea - px(1)))
               }}
-            >
-              <Text
-                font={px(14)}
-                fontWeight="medium"
-                foregroundStyle={QUIET}
-                lineLimit={1}
-              >
-                {day}
-              </Text>
-              <Spacer minLength={0} />
-              <HStack alignment="lastTextBaseline" spacing={px(2)}>
-                <Text
-                  font={px(21)}
-                  fontWeight="semibold"
-                  foregroundStyle={isToday ? AMBER_TEXT : INK}
-                  lineLimit={1}
-                  minScaleFactor={0.6}
-                >
-                  {formatUsage(value)}
-                </Text>
-                <Text
-                  font={px(13)}
-                  fontWeight="medium"
-                  foregroundStyle={UNIT}
-                  lineLimit={1}
-                >
-                  度
-                </Text>
-              </HStack>
-            </VStack>
-          ))}
-        </HStack>
+            />
+          </ZStack>
+          <Text
+            font={px(16)}
+            fontWeight="semibold"
+            foregroundStyle={isToday ? AMBER_TEXT_ON_LIGHT : INK}
+            lineLimit={1}
+            minScaleFactor={0.55}
+          >
+            {formatUsage(value)}
+          </Text>
+        </VStack>
       ))}
-    </VStack>
+    </HStack>
   )
 }
 
@@ -500,6 +634,7 @@ export function CalendarCellView({
   isFuture,
   isMax,
   isMin,
+  heat,
   width,
   height
 }: {
@@ -509,38 +644,52 @@ export function CalendarCellView({
   isFuture: boolean
   isMax: boolean
   isMin: boolean
+  heat: number
   width: number
   height: number
 }) {
-  const blank = day === 0
+  if (day === 0) {
+    return (
+      <VStack
+        frame={{ width, height }}
+        background={<RoundedRectangle cornerRadius={px(12)} fill={BLANK_BG} />}
+      />
+    )
+  }
   const valueColor = isToday
-    ? '#7D5A1A'
+    ? AMBER_TEXT_ON_LIGHT
     : isMax
-      ? '#AE4037'
+      ? RED_TEXT
       : isMin
-        ? '#3C6F9E'
+        ? BLUE_TEXT
         : INK
+  const cellBackground = isToday
+    ? TODAY_BG
+    : isMax
+      ? MAX_BG
+      : isMin
+        ? MIN_BG
+        : isFuture
+          ? FUTURE_BG
+          : HEAT_BG[Math.max(0, Math.min(3, heat))]
   return (
     <VStack
       alignment="center"
       spacing={0}
       frame={{ width, height, alignment: 'center' }}
       background={
-        isToday ? (
-          <RoundedRectangle cornerRadius={px(10)} fill="#FFF4DF" />
+        cellBackground ? (
+          <RoundedRectangle cornerRadius={px(12)} fill={cellBackground} />
         ) : undefined
       }
     >
-      {!blank ? (
-        <VStack
-          alignment="leading"
-          spacing={0}
-          frame={{
-            width: width - px(6),
-            height,
-            alignment: 'leading'
-          }}
-        >
+      <VStack
+        alignment="leading"
+        spacing={0}
+        frame={{ width: width - px(10), height, alignment: 'leading' }}
+      >
+        <Rectangle fill={CLEAR} frame={{ width: 1, height: px(4) }} />
+        <HStack spacing={px(3)} frame={{ width: width - px(10) }}>
           <Text
             font={px(14)}
             fontWeight="medium"
@@ -550,20 +699,28 @@ export function CalendarCellView({
             {day}
           </Text>
           <Spacer minLength={0} />
-          {value != null ? (
-            <Text
-            font={px(20)}
-              fontWeight="semibold"
-              foregroundStyle={valueColor}
-              lineLimit={1}
-              minScaleFactor={0.55}
-              frame={{ maxWidth: 'infinity', alignment: 'trailing' }}
-            >
-              {formatUsage(value)}
-            </Text>
+          {isToday ? (
+            <Circle
+              fill={AMBER_TEXT_ON_LIGHT}
+              frame={{ width: px(4), height: px(4) }}
+            />
           ) : null}
-        </VStack>
-      ) : null}
+        </HStack>
+        <Spacer minLength={0} />
+        {value != null ? (
+          <Text
+            font={px(24)}
+            fontWeight="semibold"
+            foregroundStyle={valueColor}
+            lineLimit={1}
+            minScaleFactor={0.5}
+            frame={{ maxWidth: 'infinity', alignment: 'trailing' }}
+          >
+            {formatUsage(value)}
+          </Text>
+        ) : null}
+        <Rectangle fill={CLEAR} frame={{ width: 1, height: px(3) }} />
+      </VStack>
     </VStack>
   )
 }
@@ -576,10 +733,10 @@ export function LegendItem({
   text: string
 }) {
   return (
-    <HStack spacing={px(6)}>
-      <Circle fill={color} frame={{ width: px(9), height: px(9) }} />
+    <HStack spacing={px(4)}>
+      <Circle fill={color} frame={{ width: px(8), height: px(8) }} />
       <Text
-        font={px(11)}
+        font={px(14)}
         fontWeight="medium"
         foregroundStyle={MUTED}
         lineLimit={1}

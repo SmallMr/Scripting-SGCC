@@ -1,21 +1,37 @@
-import { HStack, Rectangle, Spacer, Text, VStack, Widget } from 'scripting'
+import {
+  Circle,
+  HStack,
+  Rectangle,
+  RoundedRectangle,
+  Spacer,
+  Text,
+  VStack,
+  Widget
+} from 'scripting'
 import { calendarForMonth, tierDisplay } from '../core/usage'
 import {
   BrandHeader,
   CalendarCellView,
+  HeroMetaLine,
+  HeroSurface,
   LegendItem,
-  MetricTile,
   TierPanel,
   UsageValue
 } from './atoms'
 import {
   AMBER,
   BLUE,
+  HERO_ACCENT,
+  HERO_FAINT,
+  HERO_INK,
+  HERO_LINE,
+  HERO_MUTED,
   INK,
-  LINE,
-  MUTED,
   QUIET,
   RED,
+  TIER_AMBER,
+  TIER_GREEN,
+  TIER_THIRD,
   WIDGET_BG,
   formatUsage,
   px
@@ -38,11 +54,23 @@ export function LargeWidgetView({
     settings.oneLevelPq,
     settings.twoLevelPq
   )
+  const accent =
+    tier.tier === 1 ? TIER_GREEN : tier.tier === 2 ? TIER_AMBER : TIER_THIRD
   const calendar = calendarForMonth(summary.days)
-  const cellGap = px(5)
+  const cellGap = px(4)
   const cellWidth = (innerWidth - cellGap * 6) / 7
-  const summaryDivider = px(1)
-  const summaryWidth = (innerWidth - summaryDivider) / 2
+  const rowHeight = px(50)
+  const values = calendar.cells
+    .map((cell) => cell.value)
+    .filter((value): value is number => value != null && value > 0)
+  const peak = Math.max(1, ...values)
+  const heatFor = (value: number) => {
+    const ratio = value / peak
+    if (ratio > 0.75) return 3
+    if (ratio > 0.5) return 2
+    if (ratio > 0.25) return 1
+    return 0
+  }
 
   return (
     <VStack
@@ -55,75 +83,120 @@ export function LargeWidgetView({
       <BrandHeader
         syncedAt={syncedAt}
         logoSize={px(36)}
-        fontSize={px(19)}
-        gap={px(10)}
+        fontSize={px(18)}
+        gap={px(8)}
       />
 
-      <HStack
-        alignment="top"
-        spacing={px(12)}
-        frame={{ width: innerWidth, height: px(140) }}
+      <HeroSurface
+        width={innerWidth}
+        height={px(168)}
+        inset={px(16)}
+        radius={px(32)}
       >
-        <VStack alignment="leading" spacing={px(6)}>
-          <Text
-            font={px(19)}
-            fontWeight="medium"
-            foregroundStyle={MUTED}
-            lineLimit={1}
-          >
-            本月
-          </Text>
+        <VStack alignment="leading" spacing={px(2)}>
+          <HStack spacing={px(6)}>
+            <CircleMark />
+            <Text
+              font={px(18)}
+              fontWeight="medium"
+              foregroundStyle={HERO_MUTED}
+              lineLimit={1}
+            >
+              本月
+            </Text>
+          </HStack>
           <UsageValue
             value={formatUsage(summary.monthUsage)}
-            fontSize={px(92)}
-            unitSize={px(24)}
+            fontSize={px(76)}
+            unitSize={px(22)}
+            color={HERO_INK}
+            unitColor={HERO_FAINT}
+            weight="bold"
           />
         </VStack>
         <Spacer minLength={0} />
         <Rectangle
-          fill={LINE}
-          frame={{ width: px(1), height: px(120) }}
+          fill={HERO_LINE}
+          frame={{ width: px(1), height: px(112) }}
         />
-        <VStack alignment="leading" spacing={px(5)} frame={{ width: px(276) }}>
-          <Text
-            font={px(19)}
-            fontWeight="medium"
-            foregroundStyle={MUTED}
-            lineLimit={1}
-          >
-            昨日
-          </Text>
-          <UsageValue
-            value={formatUsage(summary.yesterdayUsage)}
-            fontSize={px(40)}
-            unitSize={px(18)}
+        <VStack
+          alignment="leading"
+          spacing={px(3)}
+          frame={{ width: px(270) }}
+        >
+          <HeroMetaLine
+            label="昨日"
+            value={summary.yesterdayUsage}
+            labelWidth={px(34)}
+            labelSize={px(16)}
+            valueSize={px(28)}
+            unitSize={px(13)}
+            moneySize={px(17)}
+          />
+          <HeroMetaLine
+            label="上月"
+            value={summary.previousUsage}
+            money={summary.previousCost}
+            labelWidth={px(34)}
+            labelSize={px(16)}
+            valueSize={px(28)}
+            unitSize={px(13)}
+            moneySize={px(17)}
+          />
+          <HeroMetaLine
+            label="本年"
+            value={summary.yearUsage}
+            money={summary.yearCost}
+            labelWidth={px(34)}
+            labelSize={px(16)}
+            valueSize={px(28)}
+            unitSize={px(13)}
+            moneySize={px(17)}
           />
         </VStack>
-      </HStack>
-      <Rectangle fill={LINE} frame={{ width: innerWidth, height: px(1) }} />
-      <Rectangle fill={CLEAR} frame={{ width: 1, height: px(10) }} />
+      </HeroSurface>
 
-      <HStack spacing={px(16)} frame={{ width: innerWidth, height: px(24) }}>
+      <Rectangle fill={CLEAR} frame={{ width: 1, height: px(10) }} />
+      <HStack
+        spacing={px(7)}
+        frame={{ width: innerWidth, height: px(24) }}
+      >
+        <RoundedRectangle
+          cornerRadius={px(2)}
+          fill={TIER_GREEN}
+          frame={{ width: px(4), height: px(18) }}
+        />
         <Text
-          font={px(20)}
+          font={px(19)}
           fontWeight="bold"
           foregroundStyle={INK}
           lineLimit={1}
         >
           本月每日用电
         </Text>
+        <Text
+          font={px(13)}
+          fontWeight="medium"
+          foregroundStyle={QUIET}
+          lineLimit={1}
+        >
+          单位：度
+        </Text>
         <Spacer minLength={0} />
         <LegendItem color={RED} text="最高" />
         <LegendItem color={BLUE} text="最低" />
         <LegendItem color={AMBER} text="今天" />
       </HStack>
-      <Rectangle fill={CLEAR} frame={{ width: 1, height: px(8) }} />
+      <Rectangle fill={CLEAR} frame={{ width: 1, height: px(6) }} />
 
-      <HStack spacing={cellGap} frame={{ width: innerWidth, height: px(20) }}>
+      <HStack
+        spacing={cellGap}
+        frame={{ width: innerWidth, height: px(18) }}
+      >
         {WEEKDAYS.map((name) => (
           <Text
             key={name}
-            font={px(16)}
+            font={px(14)}
             fontWeight="medium"
             foregroundStyle={QUIET}
             lineLimit={1}
@@ -140,7 +213,7 @@ export function LargeWidgetView({
           <HStack
             key={row}
             spacing={cellGap}
-            frame={{ width: innerWidth, height: px(41) }}
+            frame={{ width: innerWidth, height: rowHeight }}
           >
             {calendar.cells.slice(row * 7, row * 7 + 7).map((cell) => (
               <CalendarCellView
@@ -150,56 +223,27 @@ export function LargeWidgetView({
                 isFuture={cell.isFuture}
                 isMax={cell.isMax}
                 isMin={cell.isMin}
+                heat={cell.value != null ? heatFor(cell.value) : 0}
                 width={cellWidth}
-                height={px(41)}
+                height={rowHeight}
               />
             ))}
           </HStack>
         ))}
       </VStack>
 
-      <Rectangle fill={CLEAR} frame={{ width: 1, height: px(8) }} />
-
-      <HStack spacing={0} frame={{ width: innerWidth, height: px(70) }}>
-        <MetricTile
-          label="上月"
-          value={summary.previousUsage}
-          money={summary.previousCost}
-          width={summaryWidth}
-          height={px(70)}
-          labelSize={px(18)}
-          valueSize={px(36)}
-          unitSize={px(17)}
-          moneySize={px(20)}
-          gap={px(4)}
-          inset={0}
-        />
-        <Rectangle
-          fill={LINE}
-          frame={{ width: summaryDivider, height: px(44) }}
-        />
-        <MetricTile
-          label="本年"
-          value={summary.yearUsage}
-          money={summary.yearCost}
-          width={summaryWidth}
-          height={px(70)}
-          labelSize={px(18)}
-          valueSize={px(36)}
-          unitSize={px(17)}
-          moneySize={px(20)}
-          gap={px(4)}
-          inset={0}
-        />
-      </HStack>
-
-      <Spacer minLength={0} />
+      <Rectangle fill={CLEAR} frame={{ width: 1, height: px(6) }} />
       <TierPanel
         detail={tier.detail}
         fraction={tier.fraction}
         width={innerWidth}
-        height={px(56)}
+        accent={accent}
+        height={px(60)}
       />
     </VStack>
   )
+}
+
+function CircleMark() {
+  return <Circle fill={HERO_ACCENT} frame={{ width: px(6), height: px(6) }} />
 }
