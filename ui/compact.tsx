@@ -13,7 +13,7 @@ import {
   MetricTile,
   TierPanel
 } from './atoms'
-import { WIDGET_BG, px } from './theme'
+import { LINE, TILE, WIDGET_BG, px } from './theme'
 import type { WidgetViewProps } from './model'
 
 const CLEAR = 'rgba(0,0,0,0)'
@@ -39,9 +39,9 @@ function ThreeItemLayout({
           value={summary.yesterdayUsage}
           width={halfWidth}
           height={rowHeight}
-          labelSize={px(11)}
+          labelSize={px(12)}
           valueSize={px(24)}
-          unitSize={px(10)}
+          unitSize={px(11)}
           gap={px(6)}
           inset={px(12)}
         />
@@ -50,9 +50,9 @@ function ThreeItemLayout({
           value={summary.monthUsage}
           width={halfWidth}
           height={rowHeight}
-          labelSize={px(11)}
+          labelSize={px(12)}
           valueSize={px(24)}
-          unitSize={px(10)}
+          unitSize={px(11)}
           gap={px(6)}
           inset={px(12)}
         />
@@ -63,10 +63,10 @@ function ThreeItemLayout({
         money={summary.previousCost}
         width={width}
         height={rowHeight}
-        labelSize={px(11)}
+        labelSize={px(12)}
         valueSize={px(24)}
-        unitSize={px(10)}
-        moneySize={px(14)}
+        unitSize={px(11)}
+        moneySize={px(15)}
         gap={px(6)}
         inset={px(12)}
         divider
@@ -92,8 +92,9 @@ function FourRowLayout({
       spacing={0}
       frame={{ width, height }}
       background={
-        <RoundedRectangle cornerRadius={px(14)} fill="#F3F7F6" />
+        <RoundedRectangle cornerRadius={px(14)} fill={TILE} />
       }
+      border={{ color: LINE, width: px(1.5) }}
     >
       <DataRow
         label="昨日"
@@ -102,10 +103,10 @@ function FourRowLayout({
         height={rowHeight}
         first
         labelWidth={px(24)}
-        labelSize={px(11)}
-        valueSize={px(21)}
-        unitSize={px(10)}
-        moneySize={px(11.5)}
+        labelSize={px(11.5)}
+        valueSize={px(21.5)}
+        unitSize={px(10.5)}
+        moneySize={px(12)}
         inset={px(12)}
       />
       <DataRow
@@ -114,10 +115,10 @@ function FourRowLayout({
         width={width}
         height={rowHeight}
         labelWidth={px(24)}
-        labelSize={px(11)}
-        valueSize={px(21)}
-        unitSize={px(10)}
-        moneySize={px(11.5)}
+        labelSize={px(11.5)}
+        valueSize={px(21.5)}
+        unitSize={px(10.5)}
+        moneySize={px(12)}
         inset={px(12)}
       />
       <DataRow
@@ -127,10 +128,10 @@ function FourRowLayout({
         width={width}
         height={rowHeight}
         labelWidth={px(24)}
-        labelSize={px(11)}
-        valueSize={px(21)}
-        unitSize={px(10)}
-        moneySize={px(11.5)}
+        labelSize={px(11.5)}
+        valueSize={px(21.5)}
+        unitSize={px(10.5)}
+        moneySize={px(12)}
         inset={px(12)}
       />
       <DataRow
@@ -140,10 +141,10 @@ function FourRowLayout({
         width={width}
         height={rowHeight}
         labelWidth={px(24)}
-        labelSize={px(11)}
-        valueSize={px(21)}
-        unitSize={px(10)}
-        moneySize={px(11.5)}
+        labelSize={px(11.5)}
+        valueSize={px(21.5)}
+        unitSize={px(10.5)}
+        moneySize={px(12)}
         inset={px(12)}
       />
     </VStack>
@@ -172,9 +173,9 @@ function FourModuleLayout({
           value={summary.yesterdayUsage}
           width={halfWidth}
           height={topHeight}
-          labelSize={px(10.5)}
-          valueSize={px(19)}
-          unitSize={px(9)}
+          labelSize={px(11)}
+          valueSize={px(20)}
+          unitSize={px(10)}
           gap={px(3)}
           inset={px(12)}
         />
@@ -183,9 +184,9 @@ function FourModuleLayout({
           value={summary.monthUsage}
           width={halfWidth}
           height={topHeight}
-          labelSize={px(10.5)}
-          valueSize={px(19)}
-          unitSize={px(9)}
+          labelSize={px(11)}
+          valueSize={px(20)}
+          unitSize={px(10)}
           gap={px(3)}
           inset={px(12)}
         />
@@ -196,10 +197,10 @@ function FourModuleLayout({
         money={summary.previousCost}
         width={width}
         height={ticketHeight}
-        labelSize={px(10.5)}
-        valueSize={px(20)}
-        unitSize={px(10)}
-        moneySize={px(12)}
+        labelSize={px(11)}
+        valueSize={px(21)}
+        unitSize={px(10.5)}
+        moneySize={px(12.5)}
         gap={px(3)}
         inset={px(12)}
       />
@@ -209,10 +210,10 @@ function FourModuleLayout({
         money={summary.yearCost}
         width={width}
         height={ticketHeight}
-        labelSize={px(10.5)}
-        valueSize={px(20)}
-        unitSize={px(10)}
-        moneySize={px(12)}
+        labelSize={px(11)}
+        valueSize={px(21)}
+        unitSize={px(10.5)}
+        moneySize={px(12.5)}
         gap={px(3)}
         inset={px(12)}
       />
@@ -251,7 +252,7 @@ export function CompactWidgetView(props: WidgetViewProps) {
       <BrandHeader
         syncedAt={syncedAt}
         logoSize={brandHeight}
-        fontSize={px(11)}
+        fontSize={px(12)}
         gap={brandGap}
       />
       {mode === 'three' ? (

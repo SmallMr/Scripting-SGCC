@@ -5,23 +5,23 @@ type Palette = { light: string; dark: string }
 const palette = (light: string, dark: string): Palette => ({ light, dark })
 
 export const WIDGET_BG = palette('#FFFFFF', '#141917')
-export const INK = palette('#20342F', '#F4F8F6')
-export const MUTED = palette('#7D8E88', '#A5B3AE')
-export const QUIET = palette('#94A29D', '#8E9D98')
-export const FAINT = palette('#B9C5C1', '#65736E')
-export const LINE = palette('#E7EEEB', '#2A3632')
-export const TILE = palette('#F3F7F6', '#1D2824')
-export const TILE_SOFT = palette('#F7FAF9', '#19231F')
-export const MONEY = palette('#596761', '#B8C4BF')
-export const UNIT = palette('#8A9993', '#95A49E')
-export const AMBER_TEXT = palette('#8B6928', '#E0C184')
+export const INK = palette('#17251F', '#F7FAF8')
+export const MUTED = palette('#5F716A', '#C0CCC7')
+export const QUIET = palette('#6F817A', '#A8B7B1')
+export const FAINT = palette('#94A39D', '#67766F')
+export const LINE = palette('#DCE7E3', '#31403A')
+export const TILE = palette('#EEF4F2', '#1F2C27')
+export const TILE_SOFT = palette('#F6F9F8', '#1A2420')
+export const MONEY = palette('#4C5D56', '#C4CEC9')
+export const UNIT = palette('#687A73', '#A9B7B2')
+export const AMBER_TEXT = palette('#765316', '#E3C78D')
 
 export const RED = '#DC766B'
 export const BLUE = '#6C9DC6'
 export const AMBER = '#E9AE4B'
 export const TIER_GREEN = '#18A080'
 export const TIER_AMBER = '#E8B04E'
-export const TIER_REST = '#DCE5E1'
+export const TIER_REST = '#CFDBD6'
 
 export const GRID_MARK_URL =
   'https://cdn.jsdelivr.net/gh/SmallMr/Scripting-SGCC@main/assets/logo.png'

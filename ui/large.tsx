@@ -55,7 +55,7 @@ export function LargeWidgetView({
       <BrandHeader
         syncedAt={syncedAt}
         logoSize={px(36)}
-        fontSize={px(12)}
+        fontSize={px(13)}
         gap={px(14)}
       />
 
@@ -65,13 +65,18 @@ export function LargeWidgetView({
         frame={{ width: innerWidth, height: px(80) }}
       >
         <VStack alignment="leading" spacing={px(5)}>
-          <Text font={px(12)} foregroundStyle={MUTED} lineLimit={1}>
+          <Text
+            font={px(13)}
+            fontWeight="medium"
+            foregroundStyle={MUTED}
+            lineLimit={1}
+          >
             本月
           </Text>
           <UsageValue
             value={formatUsage(summary.monthUsage)}
             fontSize={px(48)}
-            unitSize={px(11)}
+            unitSize={px(12)}
           />
         </VStack>
         <Spacer minLength={0} />
@@ -81,9 +86,9 @@ export function LargeWidgetView({
           width={px(138)}
           height={px(58)}
           radius={px(15)}
-          labelSize={px(12)}
-          valueSize={px(23)}
-          unitSize={px(11)}
+          labelSize={px(13)}
+          valueSize={px(24)}
+          unitSize={px(12)}
           gap={px(5)}
           inset={px(14)}
         />
@@ -94,8 +99,8 @@ export function LargeWidgetView({
       <SectionTitle
         title="本月每日用电"
         trailing="单位：度"
-        titleSize={px(14)}
-        trailingSize={px(10)}
+        titleSize={px(15)}
+        trailingSize={px(11)}
       />
       <Rectangle fill={CLEAR} frame={{ width: 1, height: px(8) }} />
 
@@ -103,7 +108,8 @@ export function LargeWidgetView({
         {WEEKDAYS.map((name) => (
           <Text
             key={name}
-            font={px(10)}
+            font={px(11)}
+            fontWeight="medium"
             foregroundStyle={QUIET}
             lineLimit={1}
             frame={{ width: cellWidth, alignment: 'center' }}
@@ -138,7 +144,7 @@ export function LargeWidgetView({
       </VStack>
 
       <Rectangle fill={CLEAR} frame={{ width: 1, height: px(8) }} />
-      <HStack spacing={px(17)} frame={{ width: innerWidth, height: px(12) }}>
+      <HStack spacing={px(17)} frame={{ width: innerWidth, height: px(16) }}>
         <LegendItem color={RED} text="最高" />
         <LegendItem color={BLUE} text="最低" />
         <LegendItem color={AMBER} text="今天" />
@@ -153,10 +159,10 @@ export function LargeWidgetView({
           width={summaryWidth}
           height={px(58)}
           radius={px(15)}
-          labelSize={px(10)}
-          valueSize={px(19)}
-          unitSize={px(11)}
-          moneySize={px(12)}
+          labelSize={px(11)}
+          valueSize={px(20)}
+          unitSize={px(12)}
+          moneySize={px(12.5)}
           gap={px(5)}
           inset={px(12)}
         />
@@ -167,10 +173,10 @@ export function LargeWidgetView({
           width={summaryWidth}
           height={px(58)}
           radius={px(15)}
-          labelSize={px(10)}
-          valueSize={px(19)}
-          unitSize={px(11)}
-          moneySize={px(12)}
+          labelSize={px(11)}
+          valueSize={px(20)}
+          unitSize={px(12)}
+          moneySize={px(12.5)}
           gap={px(5)}
           inset={px(12)}
         />

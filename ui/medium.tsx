@@ -42,7 +42,7 @@ export function WideWidgetView({
       <BrandHeader
         syncedAt={syncedAt}
         logoSize={px(28)}
-        fontSize={px(11)}
+        fontSize={px(12)}
         gap={px(8)}
       />
 
@@ -52,9 +52,9 @@ export function WideWidgetView({
           value={summary.yesterdayUsage}
           width={tileWidths[0]}
           height={px(60)}
-          labelSize={px(10)}
-          valueSize={px(17)}
-          unitSize={px(11)}
+          labelSize={px(11)}
+          valueSize={px(18)}
+          unitSize={px(12)}
           gap={px(4)}
           inset={px(10)}
         />
@@ -63,9 +63,9 @@ export function WideWidgetView({
           value={summary.monthUsage}
           width={tileWidths[1]}
           height={px(60)}
-          labelSize={px(10)}
-          valueSize={px(17)}
-          unitSize={px(11)}
+          labelSize={px(11)}
+          valueSize={px(18)}
+          unitSize={px(12)}
           gap={px(4)}
           inset={px(10)}
         />
@@ -75,10 +75,10 @@ export function WideWidgetView({
           money={summary.previousCost}
           width={tileWidths[2]}
           height={px(60)}
-          labelSize={px(10)}
-          valueSize={px(17)}
-          unitSize={px(11)}
-          moneySize={px(11)}
+          labelSize={px(11)}
+          valueSize={px(18)}
+          unitSize={px(12)}
+          moneySize={px(12)}
           gap={px(4)}
           inset={px(10)}
         />
@@ -88,10 +88,10 @@ export function WideWidgetView({
           money={summary.yearCost}
           width={tileWidths[3]}
           height={px(60)}
-          labelSize={px(10)}
-          valueSize={px(17)}
-          unitSize={px(11)}
-          moneySize={px(11)}
+          labelSize={px(11)}
+          valueSize={px(18)}
+          unitSize={px(12)}
+          moneySize={px(12)}
           gap={px(4)}
           inset={px(10)}
         />
@@ -101,8 +101,8 @@ export function WideWidgetView({
       <SectionTitle
         title="最近14天"
         trailing="日用电量"
-        titleSize={px(13)}
-        trailingSize={px(10)}
+        titleSize={px(14)}
+        trailingSize={px(11)}
       />
       <Rectangle fill={CLEAR} frame={{ width: 1, height: px(5) }} />
       <DailyChart items={recent} width={innerWidth} height={px(80)} />

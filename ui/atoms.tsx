@@ -66,6 +66,7 @@ export function BrandHeader({
         <Spacer />
         <Text
           font={fontSize}
+          fontWeight="medium"
           foregroundStyle={QUIET}
           lineLimit={1}
           minScaleFactor={0.7}
@@ -107,6 +108,7 @@ export function UsageValue({
       </Text>
       <Text
         font={unitSize}
+        fontWeight="medium"
         foregroundStyle={UNIT}
         lineLimit={1}
         minScaleFactor={0.7}
@@ -128,6 +130,7 @@ export function MoneyAmount({
     <HStack alignment="lastTextBaseline" spacing={px(1)}>
       <Text
         font={fontSize * 0.68}
+        fontWeight="medium"
         foregroundStyle={MONEY}
         lineLimit={1}
         minScaleFactor={0.7}
@@ -136,6 +139,7 @@ export function MoneyAmount({
       </Text>
       <Text
         font={fontSize}
+        fontWeight="medium"
         foregroundStyle={MONEY}
         lineLimit={1}
         minScaleFactor={0.65}
@@ -170,10 +174,10 @@ export function MetricTile({
   width,
   height,
   radius = px(14),
-  labelSize = px(10),
-  valueSize = px(17),
-  unitSize = px(11),
-  moneySize = px(11),
+  labelSize = px(11),
+  valueSize = px(18),
+  unitSize = px(12),
+  moneySize = px(12),
   gap = px(4),
   inset = px(10),
   divider = false
@@ -184,6 +188,7 @@ export function MetricTile({
       spacing={0}
       frame={{ width, height, alignment: 'center' }}
       background={<RoundedRectangle cornerRadius={radius} fill={TILE} />}
+      border={{ color: LINE, width: px(1.5) }}
     >
       <Spacer minLength={0} />
       <VStack
@@ -193,6 +198,7 @@ export function MetricTile({
       >
         <Text
           font={labelSize}
+          fontWeight="medium"
           foregroundStyle={MUTED}
           lineLimit={1}
           minScaleFactor={0.7}
@@ -270,6 +276,7 @@ export function DataRow({
       >
         <Text
           font={labelSize}
+          fontWeight="medium"
           foregroundStyle={MUTED}
           lineLimit={1}
           frame={{ width: labelWidth, alignment: 'leading' }}
@@ -305,8 +312,8 @@ export function TierPanel({
   const gap = px(4)
   const segmentWidth = (innerWidth - gap * 2) / 3
   const knobSize = px(17)
-  const trackHeight = px(18)
-  const barHeight = px(9)
+  const trackHeight = px(20)
+  const barHeight = px(11)
   const safeFraction = Math.max(0, Math.min(1, fraction))
   return (
     <VStack
@@ -314,6 +321,7 @@ export function TierPanel({
       spacing={0}
       frame={{ width, height, alignment: 'center' }}
       background={<RoundedRectangle cornerRadius={px(15)} fill={TILE} />}
+      border={{ color: LINE, width: px(1.5) }}
     >
       <Rectangle fill={CLEAR} frame={{ width: 1, height: px(8) }} />
       <VStack
@@ -323,7 +331,8 @@ export function TierPanel({
       >
         <HStack spacing={px(8)} frame={{ maxWidth: 'infinity' }}>
           <Text
-            font={px(12)}
+            font={px(13)}
+            fontWeight="medium"
             foregroundStyle={MUTED}
             lineLimit={1}
             minScaleFactor={0.7}
@@ -332,7 +341,7 @@ export function TierPanel({
           </Text>
           <Spacer minLength={0} />
           <Text
-            font={px(12)}
+            font={px(13)}
             fontWeight="semibold"
             foregroundStyle={AMBER_TEXT}
             lineLimit={1}
@@ -358,7 +367,7 @@ export function TierPanel({
           <Circle
             fill="#FFFFFF"
             frame={{ width: knobSize, height: knobSize }}
-            border={{ color: TIER_AMBER, width: px(3) }}
+            border={{ color: TIER_AMBER, width: px(4) }}
             offset={{
               x: innerWidth * safeFraction - knobSize / 2,
               y: 0
@@ -384,11 +393,16 @@ export function SectionTitle({
 }) {
   return (
     <HStack spacing={px(8)} frame={{ maxWidth: 'infinity' }}>
-      <Text font={titleSize} fontWeight="semibold" foregroundStyle={INK} lineLimit={1}>
+      <Text font={titleSize} fontWeight="bold" foregroundStyle={INK} lineLimit={1}>
         {title}
       </Text>
       <Spacer minLength={0} />
-      <Text font={trailingSize} foregroundStyle={QUIET} lineLimit={1}>
+      <Text
+        font={trailingSize}
+        fontWeight="medium"
+        foregroundStyle={QUIET}
+        lineLimit={1}
+      >
         {trailing}
       </Text>
     </HStack>
@@ -418,7 +432,8 @@ export function DailyChart({
             frame={{ width: columnWidth, height, alignment: 'center' }}
           >
             <Text
-              font={px(9)}
+              font={px(10)}
+              fontWeight="medium"
               foregroundStyle={QUIET}
               lineLimit={1}
               minScaleFactor={0.55}
@@ -447,8 +462,8 @@ export function DailyChart({
               />
             </ZStack>
             <Text
-              font={px(9)}
-              fontWeight="medium"
+              font={px(10)}
+              fontWeight="semibold"
               foregroundStyle={INK}
               lineLimit={1}
               minScaleFactor={0.55}
@@ -485,29 +500,29 @@ export function CalendarCellView({
   const fill = blank
     ? '#FFFFFF'
     : isFuture
-      ? '#FCFDFD'
+      ? '#F9FBFA'
       : isToday
-        ? '#FFF8EB'
+        ? '#FFF3DE'
         : isMax
-          ? '#FFF4F2'
+          ? '#FFEFEC'
           : isMin
-            ? '#F0F6FB'
-            : '#F7FAF9'
+            ? '#EAF3FA'
+            : '#F4F8F7'
   const border = blank || isFuture
-    ? '#F0F3F2'
+    ? '#E1EAE6'
     : isToday
-      ? '#E5BD76'
+      ? '#D9A951'
       : isMax
-        ? '#E6A29A'
+        ? '#DD8C82'
         : isMin
-          ? '#A3BFD7'
-          : '#E8EFEC'
+          ? '#87AACB'
+          : '#D5E2DD'
   const valueColor = isToday
-    ? '#92702F'
+    ? '#7D5A1A'
     : isMax
-      ? '#BD554C'
+      ? '#AE4037'
       : isMin
-        ? '#527FA7'
+        ? '#3C6F9E'
         : INK
   return (
     <VStack
@@ -515,7 +530,7 @@ export function CalendarCellView({
       spacing={0}
       frame={{ width, height, alignment: 'center' }}
       background={<RoundedRectangle cornerRadius={px(10)} fill={fill} />}
-      border={{ color: border, width: px(1) }}
+      border={{ color: border, width: px(2) }}
     >
       {!blank ? (
         <VStack
@@ -528,7 +543,8 @@ export function CalendarCellView({
           }}
         >
           <Text
-            font={px(9)}
+            font={px(10)}
+            fontWeight="medium"
             foregroundStyle={isFuture ? FAINT : QUIET}
             lineLimit={1}
           >
@@ -537,8 +553,8 @@ export function CalendarCellView({
           <Spacer minLength={0} />
           {value != null ? (
             <Text
-              font={px(13)}
-              fontWeight="medium"
+              font={px(14)}
+              fontWeight="semibold"
               foregroundStyle={valueColor}
               lineLimit={1}
               minScaleFactor={0.55}
@@ -562,13 +578,13 @@ export function LegendItem({
 }) {
   return (
     <HStack spacing={px(6)}>
-      <RoundedRectangle
-        cornerRadius={px(3)}
-        fill={CLEAR}
-        frame={{ width: px(10), height: px(10) }}
-        border={{ color, width: px(1.5) }}
-      />
-      <Text font={px(10)} foregroundStyle={MUTED} lineLimit={1}>
+      <Circle fill={color} frame={{ width: px(9), height: px(9) }} />
+      <Text
+        font={px(11)}
+        fontWeight="medium"
+        foregroundStyle={MUTED}
+        lineLimit={1}
+      >
         {text}
       </Text>
     </HStack>
