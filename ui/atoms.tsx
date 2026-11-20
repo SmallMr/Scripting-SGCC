@@ -11,7 +11,6 @@ import {
   clockText,
   formatMoney,
   formatUsage,
-  monthStamp,
   pt,
   themePalette
 } from './theme'
@@ -65,18 +64,20 @@ export function Gap({ height }: { height: number }) {
 export function BrandHeader({
   theme,
   syncedAt,
-  small = false
+  small = false,
+  height
 }: {
   theme: WidgetTheme
   syncedAt: number
   small?: boolean
+  height?: number
 }) {
   const palette = themePalette(theme)
   return (
     <HStack
       alignment="center"
       spacing={pt(5)}
-      frame={{ maxWidth: 'infinity', height: pt(small ? 15 : 18) }}
+      frame={{ maxWidth: 'infinity', height: pt(height ?? (small ? 15 : 18)) }}
     >
       <Image
         imageUrl={GRID_MARK_URL}
@@ -86,22 +87,6 @@ export function BrandHeader({
         frame={{ width: pt(small ? 15 : 18), height: pt(small ? 15 : 18) }}
       />
       <Spacer minLength={0} />
-      <Text
-        font={pt(small ? 9 : 10)}
-        fontWeight="semibold"
-        foregroundStyle={palette.title}
-        lineLimit={1}
-      >
-        {monthStamp(syncedAt)}
-      </Text>
-      <Text
-        font={pt(small ? 8 : 9)}
-        fontWeight="medium"
-        foregroundStyle={palette.faint}
-        lineLimit={1}
-      >
-        ·
-      </Text>
       <Text
         font={pt(small ? 8 : 9)}
         fontWeight="medium"

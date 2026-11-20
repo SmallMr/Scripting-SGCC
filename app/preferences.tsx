@@ -29,6 +29,7 @@ import type {
   WidgetSettings,
   WidgetTheme
 } from '../core/settings'
+import type { WeekStart } from '../core/usage'
 
 type AccountOption = {
   index: number
@@ -282,6 +283,25 @@ export function SettingsScreen() {
           >
             <Text tag="island">浮岛</Text>
             <Text tag="grid">格栅</Text>
+          </Picker>
+        </Section>
+
+        <Section
+          header={<Text>日历</Text>}
+          footer={
+            <Text>只影响大号组件的本月日历排列，默认周一开始。</Text>
+          }
+        >
+          <Picker
+            title="每周起始"
+            value={settings.weekStart}
+            onChanged={(value: string) =>
+              patch({ weekStart: value as WeekStart })
+            }
+            pickerStyle="segmented"
+          >
+            <Text tag="monday">周一</Text>
+            <Text tag="sunday">周日</Text>
           </Picker>
         </Section>
 

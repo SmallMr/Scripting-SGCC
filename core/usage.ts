@@ -27,6 +27,7 @@ export type GridAccountPayload = {
 
 export type DayUsage = { day: string; value: number }
 export type MonthUsage = { month: string; pq: number; cost: number }
+export type WeekStart = 'monday' | 'sunday'
 
 export type CalendarMonthCell = {
   /** 0 表示用来补齐整周的空白格。 */
@@ -87,14 +88,16 @@ function shiftDay(date: Date, offset: number) {
 /** 当前月每天的用电情况，按周一开头补齐六周。 */
 export function calendarForMonth(
   days: DayUsage[],
-  now = new Date()
+  now = new Date(),
+  weekStart: WeekStart = 'monday'
 ): CalendarMonth {
   const year = now.getFullYear()
   const monthIndex = now.getMonth()
   const monthKey = `${year}${String(monthIndex + 1).padStart(2, '0')}`
   const today = now.getDate()
   const firstWeekday = new Date(year, monthIndex, 1).getDay()
-  const leading = (firstWeekday + 6) % 7
+  const leading =
+    weekStart === 'sunday' ? firstWeekday : (firstWeekday + 6) % 7
   const dayCount = new Date(year, monthIndex + 1, 0).getDate()
   const values: Record<string, number> = {}
   for (const item of days) {

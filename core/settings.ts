@@ -1,4 +1,4 @@
-import type { GridAccountPayload } from './usage'
+import type { GridAccountPayload, WeekStart } from './usage'
 
 /** 桌面组件主题：浮岛 / 格栅。 */
 export type WidgetTheme = 'island' | 'grid'
@@ -18,6 +18,7 @@ export type WidgetSettings = {
   showStepProgress: boolean
   oneLevelPq: number
   twoLevelPq: number
+  weekStart: WeekStart
   theme: WidgetTheme
   accountIndex: number
   smallWidgetMode: CompactStyle
@@ -36,6 +37,7 @@ export const DEFAULT_WIDGET_SETTINGS: WidgetSettings = {
   showStepProgress: true,
   oneLevelPq: 2760,
   twoLevelPq: 4800,
+  weekStart: 'monday',
   theme: 'island',
   accountIndex: 0,
   smallWidgetMode: 'month',
@@ -65,11 +67,14 @@ export function readWidgetSettings(): WidgetSettings {
     Number.isInteger(saved.accountIndex) && Number(saved.accountIndex) >= 0
       ? Number(saved.accountIndex)
       : DEFAULT_WIDGET_SETTINGS.accountIndex
+  const weekStart: WeekStart =
+    saved.weekStart === 'sunday' ? 'sunday' : 'monday'
   return {
     ...DEFAULT_WIDGET_SETTINGS,
     ...saved,
     theme: saved.theme === 'grid' ? 'grid' : 'island',
     accountIndex,
+    weekStart,
     smallWidgetMode
   }
 }

@@ -25,7 +25,8 @@ import {
 } from './theme'
 import type { WidgetViewProps } from './model'
 
-const WEEKDAYS = ['一', '二', '三', '四', '五', '六', '日']
+const WEEKDAYS_MONDAY = ['一', '二', '三', '四', '五', '六', '日']
+const WEEKDAYS_SUNDAY = ['日', '一', '二', '三', '四', '五', '六']
 
 export function LargeWidgetView({
   summary,
@@ -40,9 +41,12 @@ export function LargeWidgetView({
     settings.oneLevelPq,
     settings.twoLevelPq
   )
-  const calendar = calendarForMonth(summary.days)
+  const weekStart = settings.weekStart ?? 'monday'
+  const weekdays =
+    weekStart === 'sunday' ? WEEKDAYS_SUNDAY : WEEKDAYS_MONDAY
+  const calendar = calendarForMonth(summary.days, new Date(), weekStart)
   const cellWidth = width / 7
-  const rowHeight = pt(27)
+  const rowHeight = pt(32)
   const chipHeight = pt(46)
   const chipGap = pt(6)
   const chipWidth = (width - chipGap * 2) / 3
@@ -50,16 +54,16 @@ export function LargeWidgetView({
 
   return (
     <ThemeShell theme={theme}>
-      <BrandHeader theme={theme} syncedAt={syncedAt} />
-      <Gap height={theme === 'island' ? 4 : 6} />
+      <BrandHeader theme={theme} syncedAt={syncedAt} height={16} />
+      <Gap height={theme === 'island' ? 1 : 4} />
 
       {theme === 'island' ? (
         <HStack
           alignment="bottom"
-          spacing={0}
-          frame={{ width, height: pt(59) }}
+          spacing={pt(4)}
+          frame={{ width, height: pt(40) }}
         >
-          <VStack alignment="leading" spacing={0}>
+          <HStack alignment="lastTextBaseline" spacing={pt(3)}>
             <Text
               font={pt(9)}
               fontWeight="semibold"
@@ -70,16 +74,16 @@ export function LargeWidgetView({
             </Text>
             <UsageValue
               value={formatUsage(summary.monthUsage)}
-              size={40}
-              unitSize={11}
+              size={30}
+              unitSize={9}
               color={INK}
               unitColor={palette.label}
             />
-          </VStack>
+          </HStack>
           <Spacer minLength={0} />
-          <VStack alignment="trailing" spacing={0}>
+          <HStack alignment="lastTextBaseline" spacing={pt(3)}>
             <Text
-              font={pt(8.5)}
+              font={pt(8)}
               fontWeight="semibold"
               foregroundStyle={palette.label}
               lineLimit={1}
@@ -88,56 +92,60 @@ export function LargeWidgetView({
             </Text>
             <UsageValue
               value={formatUsage(summary.yesterdayUsage)}
-              size={20}
-              unitSize={8.5}
+              size={17}
+              unitSize={7.5}
               color={INK}
               unitColor={palette.label}
               weight="semibold"
             />
-          </VStack>
+          </HStack>
         </HStack>
       ) : (
-        <HStack spacing={pt(6)} frame={{ width, height: pt(60) }}>
+        <HStack spacing={pt(6)} frame={{ width, height: pt(56) }}>
           <GridModule
             theme={theme}
             width={stripWidth}
-            height={pt(60)}
+            height={pt(56)}
             label="本月"
             value={summary.monthUsage}
+            valueSize={17}
             paddingX={6}
           />
           <GridModule
             theme={theme}
             width={stripWidth}
-            height={pt(60)}
+            height={pt(56)}
             label="昨日"
             value={summary.yesterdayUsage}
+            valueSize={17}
             paddingX={6}
           />
           <GridModule
             theme={theme}
             width={stripWidth}
-            height={pt(60)}
+            height={pt(56)}
             label="上月"
             value={summary.previousUsage}
             money={summary.previousCost}
+            valueSize={17}
             moneySize={7.5}
             paddingX={6}
           />
           <GridModule
             theme={theme}
             width={stripWidth}
-            height={pt(60)}
+            height={pt(56)}
             label="本年"
             value={summary.yearUsage}
             money={summary.yearCost}
+            valueSize={17}
             moneySize={7.5}
             paddingX={6}
           />
         </HStack>
       )}
 
-      <Gap height={theme === 'island' ? 6 : 10} />
+      <Gap height={theme === 'island' ? 3 : 4} />
       <HStack
         alignment="center"
         spacing={pt(7)}
@@ -160,9 +168,9 @@ export function LargeWidgetView({
 
       <HStack
         spacing={0}
-        frame={{ width, height: pt(theme === 'island' ? 13 : 12) }}
+        frame={{ width, height: pt(12) }}
       >
-        {WEEKDAYS.map((name) => (
+        {weekdays.map((name) => (
           <Text
             key={name}
             font={pt(theme === 'island' ? 8 : 7.5)}
