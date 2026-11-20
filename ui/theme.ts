@@ -28,7 +28,7 @@ export const PILL_BG = palette('#F0F6F3', '#22302B')
 /** 两套桌面主题：浮岛是鼠尾草画布 + 白卡，格栅是纯白画布 + 灰模块。 */
 export const THEME_PALETTES: Record<WidgetTheme, ThemePalette> = {
   island: {
-    background: palette('#E4EEE8', '#1A2420'),
+    background: palette('#FFFFFF', '#121815'),
     surface: palette('#FFFFFF', '#121815'),
     module: palette('#EAF3EE', '#22302B'),
     line: palette('#E4EEE8', '#2E3C35'),

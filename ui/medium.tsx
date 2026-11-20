@@ -34,13 +34,13 @@ export function WideWidgetView({
   return (
     <ThemeShell theme={theme}>
       <BrandHeader theme={theme} syncedAt={syncedAt} />
-      <Gap height={theme === 'island' ? 1 : 5} />
+      <Gap height={theme === 'island' ? 4 : 5} />
 
       {theme === 'island' ? (
         <HStack
           alignment="bottom"
           spacing={0}
-          frame={{ width, height: pt(50) }}
+          frame={{ width, height: pt(58) }}
         >
           <VStack alignment="leading" spacing={0}>
             <Text
@@ -53,8 +53,8 @@ export function WideWidgetView({
             </Text>
             <UsageValue
               value={formatUsage(summary.monthUsage)}
-              size={33}
-              unitSize={9}
+              size={38}
+              unitSize={10}
               color={INK}
               unitColor={palette.label}
             />

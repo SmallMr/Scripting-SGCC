@@ -18,7 +18,7 @@ import {
 
 const CLEAR = 'rgba(0,0,0,0)'
 
-/** 主题外壳：浮岛是一圈鼠尾草画布加白卡，格栅直接铺白底。 */
+/** 主题外壳：两套都用白底，浮岛靠浅绿模块区分，格栅靠中性灰模块区分。 */
 export function ThemeShell({
   theme,
   small = false,
@@ -29,40 +29,13 @@ export function ThemeShell({
   children?: unknown
 }) {
   const palette = themePalette(theme)
-  if (theme === 'island') {
-    return (
-      <VStack
-        alignment="leading"
-        spacing={0}
-        padding={pt(small ? 7 : 8)}
-        frame={{ maxWidth: 'infinity', maxHeight: 'infinity' }}
-        widgetBackground={palette.background}
-      >
-        <ZStack frame={{ maxWidth: 'infinity', maxHeight: 'infinity' }}>
-          <RoundedRectangle
-            cornerRadius={pt(small ? 16 : 18)}
-            fill={palette.surface}
-            frame={{ maxWidth: 'infinity', maxHeight: 'infinity' }}
-          />
-          <VStack
-            alignment="leading"
-            spacing={0}
-            padding={pt(small ? 12 : 14)}
-            frame={{ maxWidth: 'infinity', maxHeight: 'infinity' }}
-          >
-            {children}
-          </VStack>
-        </ZStack>
-      </VStack>
-    )
-  }
   return (
     <VStack
       alignment="leading"
       spacing={0}
       padding={pt(small ? 12 : 14)}
       frame={{ maxWidth: 'infinity', maxHeight: 'infinity' }}
-      widgetBackground={palette.background}
+      widgetBackground={palette.surface}
     >
       {children}
     </VStack>
@@ -71,7 +44,7 @@ export function ThemeShell({
 
 /** 组件内容区的实际宽度（已扣掉外层画布和内卡的全部内边距）。 */
 export function contentWidth(theme: WidgetTheme, small = false) {
-  const inset = theme === 'island' ? (small ? 19 : 22) : small ? 12 : 14
+  const inset = small ? 12 : 14
   return pt((small ? 158 : 338) - inset * 2)
 }
 
@@ -80,7 +53,7 @@ export function contentHeight(
   baseHeight: number,
   small = false
 ) {
-  const inset = theme === 'island' ? (small ? 19 : 22) : small ? 12 : 14
+  const inset = small ? 12 : 14
   return pt(baseHeight - inset * 2)
 }
 

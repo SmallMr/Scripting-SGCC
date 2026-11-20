@@ -42,8 +42,8 @@ export function LargeWidgetView({
   )
   const calendar = calendarForMonth(summary.days)
   const cellWidth = width / 7
-  const rowHeight = pt(theme === 'island' ? 25 : 27)
-  const chipHeight = pt(theme === 'island' ? 44 : 46)
+  const rowHeight = pt(27)
+  const chipHeight = pt(46)
   const chipGap = pt(6)
   const chipWidth = (width - chipGap * 2) / 3
   const stripWidth = (width - pt(18)) / 4

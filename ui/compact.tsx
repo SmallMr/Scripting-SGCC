@@ -137,7 +137,7 @@ export function CompactWidgetView(props: WidgetViewProps) {
           <ValueChip
             theme={theme}
             width={width}
-            height={pt(theme === 'island' ? 38 : 40)}
+            height={pt(40)}
             label="上月"
             value={summary.previousUsage}
             money={summary.previousCost}
@@ -152,7 +152,7 @@ export function CompactWidgetView(props: WidgetViewProps) {
           <ValueChip
             theme={theme}
             width={width}
-            height={pt(theme === 'island' ? 38 : 40)}
+            height={pt(40)}
             label="本年"
             value={summary.yearUsage}
             money={summary.yearCost}
@@ -180,7 +180,7 @@ export function CompactWidgetView(props: WidgetViewProps) {
             theme={theme}
             tier={tier}
             width={width}
-            height={pt(theme === 'island' ? 81 : 86)}
+            height={pt(86)}
           />
           <Spacer minLength={0} />
           <LineRow
@@ -196,7 +196,7 @@ export function CompactWidgetView(props: WidgetViewProps) {
           <MonthHero
             theme={theme}
             width={width}
-            height={pt(theme === 'island' ? 56 : 62)}
+            height={pt(62)}
             label="本月"
             value={summary.monthUsage}
           />
