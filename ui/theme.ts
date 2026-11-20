@@ -1,6 +1,17 @@
 import { Widget } from 'scripting'
+import type { WidgetTheme } from '../core/settings'
 
 type Palette = { light: string; dark: string }
+export type ThemePalette = {
+  background: Palette
+  surface: Palette
+  module: Palette
+  line: Palette
+  label: Palette
+  faint: Palette
+  title: Palette
+  tierTrack: Palette
+}
 
 const palette = (light: string, dark: string): Palette => ({ light, dark })
 
@@ -12,6 +23,35 @@ export const FAINT = palette('#A0ACA6', '#6F7E77')
 export const LINE = palette('#E4ECE8', '#2C3A34')
 export const MONEY = palette('#55645E', '#C7D1CC')
 export const UNIT = palette('#788881', '#AAB8B2')
+export const PILL_BG = palette('#F0F6F3', '#22302B')
+
+/** 两套桌面主题：浮岛是鼠尾草画布 + 白卡，格栅是纯白画布 + 灰模块。 */
+export const THEME_PALETTES: Record<WidgetTheme, ThemePalette> = {
+  island: {
+    background: palette('#E4EEE8', '#1A2420'),
+    surface: palette('#FFFFFF', '#121815'),
+    module: palette('#EAF3EE', '#22302B'),
+    line: palette('#E4EEE8', '#2E3C35'),
+    label: palette('#8A9C93', '#A9B8B0'),
+    faint: palette('#A9B6B0', '#7C8C84'),
+    title: palette('#647A70', '#B9C7C0'),
+    tierTrack: palette('#DDE8E2', '#2E3C35')
+  },
+  grid: {
+    background: palette('#FFFFFF', '#101412'),
+    surface: palette('#FFFFFF', '#101412'),
+    module: palette('#F1F2EF', '#1D2421'),
+    line: palette('#E8EDEA', '#2C3530'),
+    label: palette('#7A8A81', '#A8B5AF'),
+    faint: palette('#A3AFA8', '#7F8C86'),
+    title: palette('#5D6A63', '#BAC6C0'),
+    tierTrack: palette('#E4EAE7', '#2E3833')
+  }
+}
+
+export function themePalette(theme: WidgetTheme = 'island'): ThemePalette {
+  return THEME_PALETTES[theme] ?? THEME_PALETTES.island
+}
 
 export const RED = '#C96A60'
 export const RED_TEXT = '#AC4C43'
@@ -22,21 +62,10 @@ export const AMBER_TEXT_ON_LIGHT = '#91641E'
 export const TIER_GREEN = '#159B7E'
 export const TIER_AMBER = '#E0A84C'
 export const TIER_THIRD = '#C89674'
-
-export const MAX_BG = palette('#FBEAE7', '#3C2724')
-export const MIN_BG = palette('#EAF2FA', '#20303E')
-export const TODAY_BG = palette('#FBF0DC', '#3A2E1D')
-
-/** 日历普通日期由浅到深的四档底色，让用电高低一眼可见。 */
-export const HEAT_BG = [
-  'rgba(23,74,64,0.035)',
-  'rgba(23,74,64,0.070)',
-  'rgba(23,74,64,0.105)',
-  'rgba(23,74,64,0.145)'
-] as const
-
-export const FUTURE_BG = 'rgba(23,74,64,0.018)'
-export const BLANK_BG = 'rgba(23,74,64,0.010)'
+export const CALENDAR_RED = '#BF5B4E'
+export const CALENDAR_BLUE = '#4E7CA6'
+export const CALENDAR_AMBER = '#A9762A'
+export const CALENDAR_DATE = '#98A6A0'
 
 export const GRID_MARK_URL =
   'https://cdn.jsdelivr.net/gh/SmallMr/Scripting-SGCC@main/assets/logo.png'
@@ -49,6 +78,13 @@ export function px(value: number) {
   const width = Widget.displaySize.width || 338
   const nominal = Widget.family === 'systemSmall' ? 158 : 338
   return (value / 2) * (width / nominal)
+}
+
+/** 设计稿按点标注时使用；组件比例固定，只随实际宽度等比缩放。 */
+export function pt(value: number) {
+  const width = Widget.displaySize.width || 338
+  const nominal = Widget.family === 'systemSmall' ? 158 : 338
+  return value * (width / nominal)
 }
 
 /** 去掉无意义的尾零，同时保留一位小数和千位分隔。 */

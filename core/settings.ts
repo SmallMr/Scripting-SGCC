@@ -1,10 +1,10 @@
 import type { GridAccountPayload } from './usage'
 
-/** 柱状图按日还是按月取数。 */
-export type TrendUnit = 'daily' | 'monthly'
+/** 桌面组件主题：浮岛 / 格栅。 */
+export type WidgetTheme = 'island' | 'grid'
 
-/** 小号组件可选的三种排版。 */
-export type CompactStyle = 'three' | 'compact' | 'modules'
+/** 小号组件的三种信息组合。 */
+export type CompactStyle = 'month' | 'bill' | 'tier'
 
 /**
  * 用户可见的设置项。
@@ -15,11 +15,11 @@ export type CompactStyle = 'three' | 'compact' | 'modules'
 export type WidgetSettings = {
   phone: string
   smsCode: string
-  dimension: TrendUnit
-  barCount: number
   showStepProgress: boolean
   oneLevelPq: number
   twoLevelPq: number
+  theme: WidgetTheme
+  accountIndex: number
   smallWidgetMode: CompactStyle
   refreshHours: number
 }
@@ -33,12 +33,12 @@ export type UsageSnapshot = {
 export const DEFAULT_WIDGET_SETTINGS: WidgetSettings = {
   phone: '',
   smsCode: '',
-  dimension: 'daily',
-  barCount: 7,
   showStepProgress: true,
   oneLevelPq: 2760,
   twoLevelPq: 4800,
-  smallWidgetMode: 'modules',
+  theme: 'island',
+  accountIndex: 0,
+  smallWidgetMode: 'month',
   refreshHours: 4
 }
 
@@ -54,7 +54,24 @@ const PASSWORD_KEY = `${SECRET_NAMESPACE}password`
 
 export function readWidgetSettings(): WidgetSettings {
   const saved = Storage.get<Partial<WidgetSettings>>(SETTINGS_KEY) ?? {}
-  return { ...DEFAULT_WIDGET_SETTINGS, ...saved }
+  const legacyMode = saved.smallWidgetMode as string | undefined
+  const smallWidgetMode: CompactStyle =
+    legacyMode === 'month' || legacyMode === 'bill' || legacyMode === 'tier'
+      ? legacyMode
+      : legacyMode === 'compact'
+        ? 'bill'
+        : 'month'
+  const accountIndex =
+    Number.isInteger(saved.accountIndex) && Number(saved.accountIndex) >= 0
+      ? Number(saved.accountIndex)
+      : DEFAULT_WIDGET_SETTINGS.accountIndex
+  return {
+    ...DEFAULT_WIDGET_SETTINGS,
+    ...saved,
+    theme: saved.theme === 'grid' ? 'grid' : 'island',
+    accountIndex,
+    smallWidgetMode
+  }
 }
 
 export function writeWidgetSettings(settings: WidgetSettings) {

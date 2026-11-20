@@ -1,6 +1,3 @@
-import type { Color } from 'scripting'
-import type { TrendUnit } from './settings'
-
 /** 网上国网接口返回的户号数据（只列出用到的字段）。 */
 export type GridAccountPayload = {
   userInfo?: {
@@ -64,27 +61,6 @@ export type UsageSummary = {
 }
 
 export type Tier = 1 | 2 | 3
-export type UsageBar = { value: number; tier: Tier }
-
-/** 每档柱子的上下渐变色。 */
-export const TIER_BAR_FILLS: Record<Tier, [Color, Color]> = {
-  1: ['#81CDC7', '#00706B'],
-  2: ['#FFEE8C', '#E8C70B'],
-  3: ['#FCBF94', '#D0580D']
-}
-
-export const TIER_COLORS: Record<Tier, Color> = {
-  1: '#00706B',
-  2: '#E8C70B',
-  3: '#D0580D'
-}
-
-/** 阶梯条的底槽：同色 10% 透明度。 */
-export const TIER_BACKGROUNDS: Record<Tier, Color> = {
-  1: 'rgba(0,112,107,0.1)',
-  2: 'rgba(232,199,11,0.1)',
-  3: 'rgba(208,88,13,0.1)'
-}
 
 const asNumber = (value: unknown) => {
   const num = Number(value)
@@ -94,10 +70,6 @@ const asNumber = (value: unknown) => {
 const currentMonthKey = () => {
   const now = new Date()
   return `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}`
-}
-
-function monthOfDay(day: string) {
-  return day.slice(0, 6)
 }
 
 function dayKey(date: Date) {
@@ -174,27 +146,7 @@ export function calendarForMonth(
   return { leading, cells }
 }
 
-/** 最近若干个自然日；国网尚未返回的日期用 0 占位，保证 14 根柱子的含义固定。 */
-export function recentCalendarDays(
-  days: DayUsage[],
-  count: number,
-  now = new Date()
-) {
-  const values: Record<string, number> = {}
-  for (const item of days) values[item.day] = item.value
-  return Array.from({ length: count }, (_, index) => {
-    const date = shiftDay(now, index - count + 1)
-    const key = dayKey(date)
-    return {
-      key,
-      day: date.getDate(),
-      value: values[key] ?? 0,
-      isToday: key === dayKey(now)
-    }
-  })
-}
-
-/** 阶梯在三段进度条上的位置，以及当前档位还剩多少额度。 */
+/** 当前阶梯，以及本阶梯剩余额度（第三阶梯改为显示本年总量）。 */
 export function tierDisplay(
   usage: number,
   firstCap: number,
@@ -211,14 +163,24 @@ export function tierDisplay(
         : (usage - safeSecond) / (safeSecond - safeFirst)
   const percent = Math.max(0, Math.min(1, ratio))
   const remaining = Math.max(0, (tier === 1 ? safeFirst : safeSecond) - usage)
+  const amount = tier === 3 ? usage : remaining
+  const detail =
+    tier === 3
+      ? `本年 ${Math.round(usage * 10) / 10} 度`
+      : `本阶梯剩余 ${Math.round(remaining * 10) / 10} 度`
+  const shortDetail =
+    tier === 3
+      ? detail
+      : `剩余 ${Math.round(remaining * 10) / 10} 度`
   return {
     tier,
     percent,
     fraction: ((tier - 1) + percent) / 3,
-    detail:
-      tier === 3
-        ? `本年 ${Math.round(usage * 10) / 10} 度`
-        : `本阶梯剩余 ${Math.round(remaining * 10) / 10} 度`
+    remaining,
+    amount,
+    label: tier === 3 ? '本年' : '本阶梯剩余',
+    detail,
+    shortDetail
   }
 }
 
@@ -308,53 +270,6 @@ export function resolveTier(
   return total > secondCap ? 3 : total > firstCap ? 2 : 1
 }
 
-/** 取最近 `count` 根柱子，并按当期累计电量给每根柱子着色。 */
-export function pickRecentBars(
-  summary: UsageSummary,
-  options: {
-    unit: TrendUnit
-    count: number
-    firstCap: number
-    secondCap: number
-  }
-): UsageBar[] {
-  const { unit, count, firstCap, secondCap } = options
-  const tiersByMonth: Record<string, Tier> = {}
-  const bars: UsageBar[] = []
-  let year = ''
-  let yearTotal = 0
-
-  for (const { month, pq } of summary.months) {
-    if (month.slice(0, 4) !== year) {
-      year = month.slice(0, 4)
-      yearTotal = 0
-    }
-    yearTotal += pq
-    const tier = resolveTier(yearTotal, firstCap, secondCap)
-    tiersByMonth[month] = tier
-    if (unit === 'monthly') bars.push({ value: pq, tier })
-  }
-
-  if (unit === 'daily') {
-    const thisYear = String(new Date().getFullYear())
-    const monthsThisYear = Object.keys(tiersByMonth).filter((month) =>
-      month.startsWith(thisYear)
-    )
-    // 本月还没结算时，沿用今年最近一个月的阶梯
-    const latestTier =
-      tiersByMonth[monthsThisYear[monthsThisYear.length - 1]] || 1
-    for (const { day, value } of summary.days) {
-      const month = monthOfDay(day)
-      const tier = month.startsWith(thisYear)
-        ? tiersByMonth[month] || latestTier
-        : 1
-      bars.push({ value, tier })
-    }
-  }
-
-  return bars.slice(-Math.max(1, count))
-}
-
 /**
  * 当前阶梯以及在该阶梯里的进度。第三阶梯没有上限，按和第二阶梯相同的
  * 宽度（`2 * secondCap - firstCap`）来归一化。
@@ -368,16 +283,6 @@ export function tierPosition(
   const cap = [firstCap, secondCap, secondCap * 2 - firstCap][tier - 1]
   const percent = cap > 0 ? Math.min(usage / cap, 1) : 0
   return { tier, percent }
-}
-
-/** 三档分别填充了多少，和 `tierPosition` 使用同一把尺子。 */
-export function tierSegmentProgress(
-  tier: Tier,
-  percent: number
-): [number, number, number] {
-  const filled = tier * percent
-  const fill = (index: number) => Math.max(0, Math.min(1, filled - index))
-  return [fill(0), fill(1), fill(2)]
 }
 
 export const TIER_CAPTIONS: Record<Tier, string> = { 1: '一', 2: '二', 3: '三' }

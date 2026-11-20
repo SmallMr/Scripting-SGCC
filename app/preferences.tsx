@@ -19,11 +19,41 @@ import { loadUsageFeed, sendDeviceCode, toErrorMessage } from '../core/gateway'
 import {
   clearUsageSnapshot,
   readAccountSecret,
+  readUsageSnapshot,
   readWidgetSettings,
   writeAccountSecret,
   writeWidgetSettings
 } from '../core/settings'
-import type { CompactStyle, WidgetSettings } from '../core/settings'
+import type {
+  CompactStyle,
+  WidgetSettings,
+  WidgetTheme
+} from '../core/settings'
+
+type AccountOption = {
+  index: number
+  label: string
+  available: boolean
+}
+
+/** 从最近一次抓取结果里生成户号选项，失败户号也保留位置。 */
+function buildAccountOptions(): AccountOption[] {
+  const list = readUsageSnapshot()?.list ?? []
+  return list.map((item, index) => {
+    if (!item) {
+      return { index, label: `户号 ${index + 1} · 未获取`, available: false }
+    }
+    const name =
+      item.userInfo?.consName_dst ||
+      item.userInfo?.orgName ||
+      `户号 ${index + 1}`
+    const number = String(
+      item.userInfo?.consNo_dst || item.userInfo?.consNo || ''
+    )
+    const tail = number.length >= 4 ? ` · 尾号 ${number.slice(-4)}` : ''
+    return { index, label: `${name}${tail}`, available: true }
+  })
+}
 
 /** 只接受正整数的输入行。 */
 function NumericRow({
@@ -68,6 +98,9 @@ export function SettingsScreen() {
   const [password, setPasswordText] = useState(() => readAccountSecret())
   const [sending, setSending] = useState(false)
   const [refreshing, setRefreshing] = useState(false)
+  const [accounts, setAccounts] = useState<AccountOption[]>(() =>
+    buildAccountOptions()
+  )
 
   useEffect(() => {
     writeWidgetSettings(settings)
@@ -83,8 +116,13 @@ export function SettingsScreen() {
 
   const handlePhoneChange = (phone: string) => {
     // 换账号后，上一个账号的缓存不能继续显示
-    if (phone !== settings.phone) clearUsageSnapshot()
-    patch({ phone })
+    if (phone !== settings.phone) {
+      clearUsageSnapshot()
+      setAccounts([])
+      patch({ phone, accountIndex: 0 })
+    } else {
+      patch({ phone })
+    }
   }
 
   const handleSendCode = async () => {
@@ -108,6 +146,15 @@ export function SettingsScreen() {
     try {
       const { list, error } = await loadUsageFeed({ force: true })
       const ok = list.filter(Boolean).length
+      const options = buildAccountOptions()
+      setAccounts(options)
+      const firstAvailable = options.find((item) => item.available)
+      const currentAvailable = options.some(
+        (item) => item.available && item.index === settings.accountIndex
+      )
+      if (!currentAvailable && firstAvailable) {
+        patch({ accountIndex: firstAvailable.index })
+      }
       await Dialog.alert({
         title: error ? '刷新失败，已使用缓存' : '刷新成功',
         message: error ?? `已获取 ${ok} 个户号的数据`
@@ -123,6 +170,8 @@ export function SettingsScreen() {
 
   const handleClearCache = async () => {
     clearUsageSnapshot()
+    setAccounts([])
+    patch({ accountIndex: 0 })
     Widget.reloadAll()
     await Dialog.alert({
       title: '已清除',
@@ -181,6 +230,31 @@ export function SettingsScreen() {
           />
         </Section>
 
+        <Section
+          header={<Text>户号</Text>}
+          footer={
+            <Text>刷新后会自动列出当前账号下的户号。桌面组件默认使用这里选中的户号；也可在组件参数里临时覆盖。</Text>
+          }
+        >
+          {accounts.length > 0 ? (
+            <Picker
+              title="当前户号"
+              value={String(settings.accountIndex)}
+              onChanged={(value: string) =>
+                patch({ accountIndex: Number(value) })
+              }
+            >
+              {accounts.map((item) => (
+                <Text key={String(item.index)} tag={String(item.index)}>
+                  {item.label}
+                </Text>
+              ))}
+            </Picker>
+          ) : (
+            <Text>暂无户号数据，请先点「立即刷新」。</Text>
+          )}
+        </Section>
+
         <Section header={<Text>数据</Text>}>
           <Button action={handleRefresh} disabled={refreshing}>
             <HStack>
@@ -190,6 +264,25 @@ export function SettingsScreen() {
             </HStack>
           </Button>
           <Button title="清除数据缓存" role="destructive" action={handleClearCache} />
+        </Section>
+
+        <Section
+          header={<Text>外观</Text>}
+          footer={
+            <Text>浮岛：鼠尾草画布 + 白色内卡 + 浅绿模块；格栅：纯白画布 + 中性灰模块。修改后大、中、小号一起切换。</Text>
+          }
+        >
+          <Picker
+            title="主题"
+            value={settings.theme}
+            onChanged={(value: string) =>
+              patch({ theme: value as WidgetTheme })
+            }
+            pickerStyle="segmented"
+          >
+            <Text tag="island">浮岛</Text>
+            <Text tag="grid">格栅</Text>
+          </Picker>
         </Section>
 
         <Section
@@ -213,7 +306,7 @@ export function SettingsScreen() {
         <Section
           header={<Text>小号组件</Text>}
           footer={
-            <Text>只影响小号组件；摘要默认显示本月、昨日和上月，三项列表显示昨日 / 本月 / 上月，四项列表再包含本年。</Text>
+            <Text>本月：本月 + 昨日 + 阶梯；账单：上月 + 本年 + 阶梯；阶梯：阶梯主模块 + 本月。想同时放多个不同内容的小号，可在组件参数里写成 month / bill / tier。</Text>
           }
         >
           <Picker
@@ -224,9 +317,9 @@ export function SettingsScreen() {
             }
             pickerStyle="segmented"
           >
-            <Text tag="modules">摘要</Text>
-            <Text tag="three">三项列表</Text>
-            <Text tag="compact">四项列表</Text>
+            <Text tag="month">本月</Text>
+            <Text tag="bill">账单</Text>
+            <Text tag="tier">阶梯</Text>
           </Picker>
         </Section>
 
@@ -254,7 +347,7 @@ export function SettingsScreen() {
         <Section
           header={<Text>预览</Text>}
           footer={
-            <Text>多户号：长按桌面小组件 → 编辑小组件 → 参数，填从 0 开始的整数，0 为第一户，1 为第二户，以此类推。</Text>
+            <Text>组件参数：填 0 / 1 选户号；填 month / bill / tier 选小号内容；也可写成 0;bill。没有参数时使用上面的设置。</Text>
           }
         >
           <Button title="预览小组件" action={openWidgetPreview} />

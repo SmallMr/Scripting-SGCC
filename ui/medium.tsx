@@ -1,150 +1,157 @@
-import {
-  Circle,
-  HStack,
-  Rectangle,
-  Spacer,
-  Text,
-  VStack,
-  Widget
-} from 'scripting'
-import { recentCalendarDays, tierDisplay } from '../core/usage'
+import { HStack, Spacer, Text, VStack } from 'scripting'
+import { tierDisplay } from '../core/usage'
 import {
   BrandHeader,
-  DailyBars,
-  HeroMetaLine,
-  HeroSurface,
-  SectionTitle,
-  TierPanel,
-  UsageValue
+  Gap,
+  GridModule,
+  ThemeShell,
+  TierChip,
+  TierLine,
+  UsageValue,
+  ValueChip,
+  contentWidth
 } from './atoms'
-import {
-  INK,
-  LINE,
-  MUTED,
-  TIER_AMBER,
-  TIER_GREEN,
-  TIER_THIRD,
-  UNIT,
-  WIDGET_BG,
-  formatUsage,
-  px
-} from './theme'
+import { INK, formatUsage, pt, themePalette } from './theme'
 import type { WidgetViewProps } from './model'
-
-const CLEAR = 'rgba(0,0,0,0)'
 
 export function WideWidgetView({
   summary,
   settings,
   syncedAt
 }: WidgetViewProps) {
-  const width = Widget.displaySize.width
-  const padding = px(16)
-  const innerWidth = width - padding * 2
+  const theme = settings.theme ?? 'island'
+  const palette = themePalette(theme)
+  const width = contentWidth(theme)
   const tier = tierDisplay(
     summary.tierUsage,
     settings.oneLevelPq,
     settings.twoLevelPq
   )
-  const accent =
-    tier.tier === 1 ? TIER_GREEN : tier.tier === 2 ? TIER_AMBER : TIER_THIRD
-  const recent = recentCalendarDays(summary.days, 7)
+  const chipGap = pt(6)
+  const chipWidth = (width - chipGap * 2) / 3
+  const stripWidth = (width - pt(18)) / 4
 
   return (
-    <VStack
-      alignment="leading"
-      spacing={0}
-      padding={padding}
-      frame={{ maxWidth: 'infinity', maxHeight: 'infinity' }}
-      widgetBackground={WIDGET_BG}
-    >
-      <BrandHeader
-        syncedAt={syncedAt}
-        logoSize={px(28)}
-        fontSize={px(15)}
-        gap={px(4)}
-      />
+    <ThemeShell theme={theme}>
+      <BrandHeader theme={theme} syncedAt={syncedAt} />
+      <Gap height={theme === 'island' ? 1 : 5} />
 
-      <HeroSurface
-        width={innerWidth}
-        height={px(80)}
-        inset={px(12)}
-      >
-        <VStack alignment="leading" spacing={px(1)}>
-          <HStack spacing={px(5)}>
-            <Circle
-              fill={TIER_GREEN}
-              frame={{ width: px(5), height: px(5) }}
-            />
+      {theme === 'island' ? (
+        <HStack
+          alignment="bottom"
+          spacing={0}
+          frame={{ width, height: pt(50) }}
+        >
+          <VStack alignment="leading" spacing={0}>
             <Text
-              font={px(15)}
-              fontWeight="medium"
-              foregroundStyle={MUTED}
+              font={pt(8.5)}
+              fontWeight="semibold"
+              foregroundStyle={palette.label}
               lineLimit={1}
             >
               本月
             </Text>
-          </HStack>
-          <UsageValue
-            value={formatUsage(summary.monthUsage)}
-            fontSize={px(50)}
-            unitSize={px(15)}
-            color={INK}
-            unitColor={UNIT}
-            weight="bold"
+            <UsageValue
+              value={formatUsage(summary.monthUsage)}
+              size={33}
+              unitSize={9}
+              color={INK}
+              unitColor={palette.label}
+            />
+          </VStack>
+          <Spacer minLength={0} />
+          <VStack alignment="trailing" spacing={0}>
+            <Text
+              font={pt(8)}
+              fontWeight="semibold"
+              foregroundStyle={palette.label}
+              lineLimit={1}
+            >
+              昨日
+            </Text>
+            <UsageValue
+              value={formatUsage(summary.yesterdayUsage)}
+              size={18}
+              unitSize={8}
+              color={INK}
+              unitColor={palette.label}
+              weight="semibold"
+            />
+          </VStack>
+        </HStack>
+      ) : (
+        <HStack spacing={pt(6)} frame={{ width, height: pt(70) }}>
+          <GridModule
+            theme={theme}
+            width={stripWidth}
+            height={pt(70)}
+            label="本月"
+            value={summary.monthUsage}
+            paddingX={6}
           />
-        </VStack>
-        <Spacer minLength={0} />
-        <Rectangle
-          fill={LINE}
-          frame={{ width: px(1), height: px(64) }}
-        />
-        <VStack
-          alignment="leading"
-          spacing={px(1)}
-          frame={{ width: px(290) }}
-        >
-          <HeroMetaLine
+          <GridModule
+            theme={theme}
+            width={stripWidth}
+            height={pt(70)}
             label="昨日"
             value={summary.yesterdayUsage}
-            labelWidth={px(32)}
-            labelSize={px(14)}
-            valueSize={px(20)}
-            unitSize={px(11)}
-            moneySize={px(14)}
+            paddingX={6}
           />
-          <HeroMetaLine
+          <GridModule
+            theme={theme}
+            width={stripWidth}
+            height={pt(70)}
             label="上月"
             value={summary.previousUsage}
             money={summary.previousCost}
-            labelWidth={px(32)}
-            labelSize={px(14)}
-            valueSize={px(20)}
-            unitSize={px(11)}
-            moneySize={px(14)}
+            moneySize={7.5}
+            paddingX={6}
           />
-        </VStack>
-      </HeroSurface>
+          <GridModule
+            theme={theme}
+            width={stripWidth}
+            height={pt(70)}
+            label="本年"
+            value={summary.yearUsage}
+            money={summary.yearCost}
+            moneySize={7.5}
+            paddingX={6}
+          />
+        </HStack>
+      )}
 
-      <Rectangle fill={CLEAR} frame={{ width: 1, height: px(5) }} />
-      <SectionTitle
-        title="最近7天"
-        trailing="日用电量 · 度"
-        titleSize={px(17)}
-        trailingSize={px(13)}
-        height={px(18)}
-      />
-      <Rectangle fill={CLEAR} frame={{ width: 1, height: px(2) }} />
-      <DailyBars items={recent} width={innerWidth} height={px(88)} />
+      <Spacer minLength={0} />
 
-      <Rectangle fill={CLEAR} frame={{ width: 1, height: px(5) }} />
-      <TierPanel
-        detail={tier.detail}
-        fraction={tier.fraction}
-        width={innerWidth}
-        accent={accent}
-        height={px(54)}
-      />
-    </VStack>
+      {theme === 'island' ? (
+        <HStack spacing={chipGap} frame={{ width, height: pt(45) }}>
+          <ValueChip
+            theme={theme}
+            width={chipWidth}
+            height={pt(45)}
+            label="上月"
+            value={summary.previousUsage}
+            money={summary.previousCost}
+            paddingX={7}
+          />
+          <ValueChip
+            theme={theme}
+            width={chipWidth}
+            height={pt(45)}
+            label="本年"
+            value={summary.yearUsage}
+            money={summary.yearCost}
+            paddingX={7}
+          />
+          <TierChip
+            theme={theme}
+            tier={tier}
+            width={chipWidth}
+            height={pt(45)}
+          />
+        </HStack>
+      ) : (
+        <TierLine theme={theme} tier={tier} height={24} />
+      )}
+    </ThemeShell>
   )
 }
