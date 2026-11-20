@@ -2,15 +2,12 @@ import { Circle, HStack, Image, Rectangle, RoundedRectangle, Spacer, Text, VStac
 import type { CalendarMonthCell } from '../core/usage'
 import type { WidgetTheme } from '../core/settings'
 import {
-  AMBER,
   CALENDAR_AMBER,
   CALENDAR_BLUE,
   CALENDAR_DATE,
   CALENDAR_RED,
   GRID_MARK_URL,
   INK,
-  TIER_AMBER,
-  TIER_THIRD,
   clockText,
   formatMoney,
   formatUsage,
@@ -705,11 +702,3 @@ export function CalendarCellView({
   )
 }
 
-export const CALENDAR_DOTS = {
-  max: CALENDAR_RED,
-  min: CALENDAR_BLUE,
-  today: CALENDAR_AMBER,
-  amber: AMBER,
-  second: TIER_AMBER,
-  third: TIER_THIRD
-}
