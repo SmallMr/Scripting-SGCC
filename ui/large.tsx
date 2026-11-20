@@ -46,9 +46,11 @@ export function LargeWidgetView({
     weekStart === 'sunday' ? WEEKDAYS_SUNDAY : WEEKDAYS_MONDAY
   const calendar = calendarForMonth(summary.days, new Date(), weekStart)
   const cellWidth = width / 7
-  const rowHeight = pt(32)
+  const gridHeight = pt(theme === 'island' ? 186 : 187)
+  const rowHeight = gridHeight / calendar.weeks
   const chipHeight = pt(46)
   const chipGap = pt(6)
+  const gridGap = 6
   const chipWidth = (width - chipGap * 2) / 3
   const stripWidth = (width - pt(18)) / 4
 
@@ -185,7 +187,7 @@ export function LargeWidgetView({
       </HStack>
 
       <VStack alignment="leading" spacing={0} frame={{ width }}>
-        {Array.from({ length: 6 }, (_, row) => (
+        {Array.from({ length: calendar.weeks }, (_, row) => (
           <HStack key={row} spacing={0} frame={{ width, height: rowHeight }}>
             {calendar.cells.slice(row * 7, row * 7 + 7).map((cell) => (
               <CalendarCellView
@@ -200,7 +202,7 @@ export function LargeWidgetView({
         ))}
       </VStack>
 
-      <Spacer minLength={0} />
+      <Gap height={gridGap} />
 
       {theme === 'island' ? (
         <HStack spacing={chipGap} frame={{ width, height: chipHeight }}>

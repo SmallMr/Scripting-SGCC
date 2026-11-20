@@ -43,6 +43,8 @@ export type CalendarMonthCell = {
 
 export type CalendarMonth = {
   leading: number
+  /** 当月占用的周数，最少 5 行、最多 6 行。 */
+  weeks: number
   cells: CalendarMonthCell[]
 }
 
@@ -113,6 +115,7 @@ export function calendarForMonth(
     const dayNumber = Number(key.slice(-2))
     return dayNumber <= today && dayNumber > latest ? dayNumber : latest
   }, 0)
+  const weeks = Math.max(5, Math.ceil((leading + dayCount) / 7))
 
   const cells: CalendarMonthCell[] = []
   for (let index = 0; index < leading; index++) {
@@ -140,7 +143,7 @@ export function calendarForMonth(
       isMin: hasValue && known.length > 1 && Number(value) === minimum
     })
   }
-  while (cells.length < 42) {
+  while (cells.length < weeks * 7) {
     cells.push({
       day: 0,
       key: `blank-trailing-${cells.length}`,
@@ -151,7 +154,7 @@ export function calendarForMonth(
       isMin: false
     })
   }
-  return { leading, cells }
+  return { leading, weeks, cells }
 }
 
 /** 当前阶梯，以及本阶梯剩余额度（第三阶梯改为显示本年总量）。 */
