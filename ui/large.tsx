@@ -154,7 +154,7 @@ export function LargeWidgetView({
         <Spacer minLength={0} />
         <LegendItem theme={theme} color={RED} text="最高" />
         <LegendItem theme={theme} color={BLUE} text="最低" />
-        <LegendItem theme={theme} color={AMBER} text="今天" />
+        <LegendItem theme={theme} color={AMBER} text="最新" />
       </HStack>
       <Gap height={theme === 'island' ? 2 : 3} />
 

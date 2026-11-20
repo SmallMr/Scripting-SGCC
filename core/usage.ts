@@ -33,7 +33,8 @@ export type CalendarMonthCell = {
   day: number
   key: string
   value: number | null
-  isToday: boolean
+  /** 当月最后一个有数据的日子，用琥珀色强调。 */
+  isLatest: boolean
   isFuture: boolean
   isMax: boolean
   isMin: boolean
@@ -105,6 +106,10 @@ export function calendarForMonth(
     .filter((value): value is number => Number.isFinite(value) && value > 0)
   const maximum = known.length ? Math.max(...known) : 0
   const minimum = known.length ? Math.min(...known) : 0
+  const latestDay = Object.keys(values).reduce((latest, key) => {
+    const dayNumber = Number(key.slice(-2))
+    return dayNumber <= today && dayNumber > latest ? dayNumber : latest
+  }, 0)
 
   const cells: CalendarMonthCell[] = []
   for (let index = 0; index < leading; index++) {
@@ -112,7 +117,7 @@ export function calendarForMonth(
       day: 0,
       key: `blank-leading-${index}`,
       value: null,
-      isToday: false,
+      isLatest: false,
       isFuture: false,
       isMax: false,
       isMin: false
@@ -126,7 +131,7 @@ export function calendarForMonth(
       day,
       key,
       value: hasValue ? Number(value) : null,
-      isToday: day === today,
+      isLatest: hasValue && day === latestDay,
       isFuture: day > today,
       isMax: hasValue && known.length > 1 && Number(value) === maximum,
       isMin: hasValue && known.length > 1 && Number(value) === minimum
@@ -137,7 +142,7 @@ export function calendarForMonth(
       day: 0,
       key: `blank-trailing-${cells.length}`,
       value: null,
-      isToday: false,
+      isLatest: false,
       isFuture: false,
       isMax: false,
       isMin: false

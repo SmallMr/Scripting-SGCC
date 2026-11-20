@@ -643,8 +643,8 @@ export function CalendarCellView({
   if (cell.day === 0) {
     return <VStack spacing={0} frame={{ width, height }} />
   }
-  const dateColor = cell.isToday ? CALENDAR_AMBER : CALENDAR_DATE
-  const valueColor = cell.isToday
+  const dateColor = cell.isLatest ? CALENDAR_AMBER : CALENDAR_DATE
+  const valueColor = cell.isLatest
     ? CALENDAR_AMBER
     : cell.isMax
       ? CALENDAR_RED
