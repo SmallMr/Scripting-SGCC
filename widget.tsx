@@ -1,7 +1,7 @@
 import { Widget } from 'scripting'
 import { loadUsageFeed, toErrorMessage } from './core/gateway'
 import { readWidgetSettings } from './core/settings'
-import type { CompactStyle } from './core/settings'
+import type { CompactStyle, WidgetTheme } from './core/settings'
 import { buildUsageSummary } from './core/usage'
 import { FailureView, WidgetCanvas } from './ui/canvas'
 
@@ -14,7 +14,8 @@ import { FailureView, WidgetCanvas } from './ui/canvas'
  * `Widget.parameter` 可覆盖设置里的户号和小号模式：
  * - `0` / `1`：第一户、第二户
  * - `bill` / `month` / `tier`：小号内容
- * - `0;bill`：同时指定户号和小号内容
+ * - `island` / `grid`：浮岛 / 格栅主题
+ * - `0;bill;grid`：同时指定户号、小号内容和主题
  */
 
 /** 登录加上每个户号约 5 次请求，两端都跑纯 JS 的 SM2，留 20 秒。 */
@@ -30,14 +31,17 @@ function readWidgetParameter() {
     .filter(Boolean)
   let accountIndex: number | undefined
   let smallWidgetMode: CompactStyle | undefined
+  let theme: WidgetTheme | undefined
   for (const part of parts) {
     if (/^\d+$/.test(part)) {
       accountIndex = Number(part)
     } else if (SMALL_MODES.includes(part as CompactStyle)) {
       smallWidgetMode = part as CompactStyle
+    } else if (part === 'island' || part === 'grid') {
+      theme = part
     }
   }
-  return { accountIndex, smallWidgetMode }
+  return { accountIndex, smallWidgetMode, theme }
 }
 
 function withTimeout<T>(work: Promise<T>, ms: number): Promise<T> {
@@ -61,7 +65,8 @@ async function renderWidget() {
     const settings = {
       ...saved,
       accountIndex: override.accountIndex ?? saved.accountIndex,
-      smallWidgetMode: override.smallWidgetMode ?? saved.smallWidgetMode
+      smallWidgetMode: override.smallWidgetMode ?? saved.smallWidgetMode,
+      theme: override.theme ?? saved.theme
     }
     const accountIndex = settings.accountIndex
     const feed = await withTimeout(loadUsageFeed(), REQUEST_TIMEOUT_MS)

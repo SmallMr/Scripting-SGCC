@@ -347,7 +347,7 @@ export function SettingsScreen() {
         <Section
           header={<Text>预览</Text>}
           footer={
-            <Text>组件参数：填 0 / 1 选户号；填 month / bill / tier 选小号内容；也可写成 0;bill。没有参数时使用上面的设置。</Text>
+            <Text>组件参数：填 0 / 1 选户号；填 month / bill / tier 选小号内容；填 island / grid 选主题。也可写成 0;bill;grid。没有参数时使用上面的设置。</Text>
           }
         >
           <Button title="预览小组件" action={openWidgetPreview} />
