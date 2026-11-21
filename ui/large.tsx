@@ -74,10 +74,10 @@ export function LargeWidgetView({
               foregroundStyle={palette.label}
               lineLimit={1}
             >
-              本月
+              昨日
             </Text>
             <UsageValue
-              value={formatUsage(summary.monthUsage)}
+              value={formatUsage(summary.yesterdayUsage)}
               size={17}
               unitSize={7.5}
               color={INK}
@@ -93,10 +93,10 @@ export function LargeWidgetView({
               foregroundStyle={palette.label}
               lineLimit={1}
             >
-              昨日
+              本月
             </Text>
             <UsageValue
-              value={formatUsage(summary.yesterdayUsage)}
+              value={formatUsage(summary.monthUsage)}
               size={17}
               unitSize={7.5}
               color={INK}
@@ -111,8 +111,8 @@ export function LargeWidgetView({
             theme={theme}
             width={stripWidth}
             height={pt(56)}
-            label="本月"
-            value={summary.monthUsage}
+            label="昨日"
+            value={summary.yesterdayUsage}
             valueSize={17}
             paddingX={6}
           />
@@ -120,8 +120,8 @@ export function LargeWidgetView({
             theme={theme}
             width={stripWidth}
             height={pt(56)}
-            label="昨日"
-            value={summary.yesterdayUsage}
+            label="本月"
+            value={summary.monthUsage}
             valueSize={17}
             paddingX={6}
           />

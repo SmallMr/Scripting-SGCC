@@ -4,7 +4,7 @@
 
 ## 使用
 
-直接导入仓库根目录的 `Scripting-SGCC-1.5.6.scripting`，或在 Scripting 中新建脚本后放入本仓库文件。
+直接导入仓库根目录的 `Scripting-SGCC-1.5.7.scripting`，或在 Scripting 中新建脚本后放入本仓库文件。
 
 脚本在 Scripting 中显示为 **网上国网用电**。更新旧安装时请确认选择的是新名称，避免继续预览到参考项目。
 
