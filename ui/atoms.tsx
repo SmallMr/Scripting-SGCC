@@ -182,7 +182,8 @@ export function ValueChip({
   unitSize = 7,
   moneySize = 8,
   paddingX = 8,
-  dense = false
+  dense = false,
+  month = false
 }: {
   theme: WidgetTheme
   width: number
@@ -196,6 +197,7 @@ export function ValueChip({
   moneySize?: number
   paddingX?: number
   dense?: boolean
+  month?: boolean
 }) {
   const palette = themePalette(theme)
   return (
@@ -236,7 +238,7 @@ export function ValueChip({
         </HStack>
         <Gap height={dense ? 2 : 3} />
         <UsageValue
-          value={formatUsage(value)}
+          value={formatUsage(value, month ? 'month' : 'plain')}
           size={valueSize}
           unitSize={unitSize}
           color={INK}
@@ -259,7 +261,8 @@ export function GridModule({
   valueSize = 18,
   unitSize = 7.5,
   moneySize = 8,
-  paddingX = 6
+  paddingX = 6,
+  month = false
 }: {
   theme: WidgetTheme
   width: number
@@ -272,6 +275,7 @@ export function GridModule({
   unitSize?: number
   moneySize?: number
   paddingX?: number
+  month?: boolean
 }) {
   const palette = themePalette(theme)
   return (
@@ -302,7 +306,7 @@ export function GridModule({
         </Text>
         <Gap height={3} />
         <UsageValue
-          value={formatUsage(value)}
+          value={formatUsage(value, month ? 'month' : 'plain')}
           size={valueSize}
           unitSize={unitSize}
           color={INK}
@@ -654,7 +658,9 @@ export function CalendarCellView({
         lineLimit={1}
         frame={{ width, alignment: 'center' }}
       >
-        {cell.value == null || cell.isFuture ? '' : formatUsage(cell.value, true)}
+        {cell.value == null || cell.isFuture
+          ? ''
+          : formatUsage(cell.value, 'calendar')}
       </Text>
     </VStack>
   )

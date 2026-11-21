@@ -88,20 +88,30 @@ export function pt(value: number) {
 }
 
 /**
- * 数字格式：千分位总开关，以及日历里保留几位小数。
+ * 数字格式：千分位总开关、日历保留几位小数、本月是否保留小数。
  * 组件渲染是同步的，所以在每次渲染开头按当前设置刷新即可。
  */
-type NumberFormat = { group: boolean; calendarDigits: 1 | 2 }
+type NumberFormat = {
+  group: boolean
+  calendarDigits: 1 | 2
+  monthDigits: 0 | 1
+}
 
-let numberFormat: NumberFormat = { group: true, calendarDigits: 1 }
+let numberFormat: NumberFormat = {
+  group: true,
+  calendarDigits: 1,
+  monthDigits: 1
+}
 
 export function applyNumberFormat(settings: {
   useThousands?: boolean
   calendarTwoDecimals?: boolean
+  monthDecimals?: boolean
 }) {
   numberFormat = {
     group: settings.useThousands !== false,
-    calendarDigits: settings.calendarTwoDecimals === true ? 2 : 1
+    calendarDigits: settings.calendarTwoDecimals === true ? 2 : 1,
+    monthDigits: settings.monthDecimals === false ? 0 : 1
   }
 }
 
@@ -109,10 +119,18 @@ function groupDigits(text: string, group = numberFormat.group) {
   return group ? text.replace(/\B(?=(\d{3})+(?!\d))/g, ',') : text
 }
 
-/** 去掉无意义的尾零；`calendar` 为真时按设置保留 1 或 2 位小数。 */
-export function formatUsage(value: number, calendar = false) {
+/** 数字格式场景：普通、日历、本月。 */
+export type UsageKind = 'plain' | 'calendar' | 'month'
+
+/** 去掉无意义的尾零；日历和本月各自按设置决定小数位。 */
+export function formatUsage(value: number, kind: UsageKind = 'plain') {
   const safe = Number.isFinite(value) ? value : 0
-  const digits = calendar ? numberFormat.calendarDigits : 1
+  const digits =
+    kind === 'calendar'
+      ? numberFormat.calendarDigits
+      : kind === 'month'
+        ? numberFormat.monthDigits
+        : 1
   const factor = digits === 2 ? 100 : 10
   const rounded = Math.round(safe * factor) / factor
   const [integer, decimal] = rounded.toFixed(digits).split('.')

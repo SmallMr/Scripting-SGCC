@@ -25,13 +25,15 @@ function MonthHero({
   width,
   height,
   label,
-  value
+  value,
+  month = false
 }: {
   theme: WidgetTheme
   width: number
   height: number
   label: string
   value: number
+  month?: boolean
 }) {
   const palette = themePalette(theme)
   return (
@@ -62,7 +64,7 @@ function MonthHero({
         </Text>
         <Gap height={2} />
         <UsageValue
-          value={formatUsage(value)}
+          value={formatUsage(value, month ? 'month' : 'plain')}
           size={27}
           unitSize={8}
           color={INK}
@@ -77,12 +79,14 @@ function LineRow({
   theme,
   label,
   value,
-  height
+  height,
+  month = false
 }: {
   theme: WidgetTheme
   label: string
   value: number
   height: number
+  month?: boolean
 }) {
   const palette = themePalette(theme)
   return (
@@ -110,7 +114,7 @@ function LineRow({
         </Text>
         <Spacer minLength={0} />
         <UsageValue
-          value={formatUsage(value)}
+          value={formatUsage(value, month ? 'month' : 'plain')}
           size={13}
           unitSize={7.5}
           color={INK}
@@ -195,6 +199,7 @@ export function CompactWidgetView(props: WidgetViewProps) {
             label="本月"
             value={summary.monthUsage}
             height={20}
+            month
           />
         </VStack>
       ) : (
@@ -206,6 +211,7 @@ export function CompactWidgetView(props: WidgetViewProps) {
             height={pt(62)}
             label="本月"
             value={summary.monthUsage}
+            month
           />
           <Gap height={4} />
           <LineRow

@@ -59,7 +59,7 @@ export function WideWidgetView({
               本月
             </Text>
             <UsageValue
-              value={formatUsage(summary.monthUsage)}
+              value={formatUsage(summary.monthUsage, 'month')}
               size={38}
               unitSize={10}
               color={INK}
@@ -95,6 +95,7 @@ export function WideWidgetView({
             label="本月"
             value={summary.monthUsage}
             paddingX={6}
+            month
           />
           <GridModule
             theme={theme}

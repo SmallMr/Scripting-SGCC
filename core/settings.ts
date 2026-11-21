@@ -22,6 +22,7 @@ export type WidgetSettings = {
   theme: WidgetTheme
   useThousands: boolean
   calendarTwoDecimals: boolean
+  monthDecimals: boolean
   accountIndex: number
   smallWidgetMode: CompactStyle
   refreshHours: number
@@ -43,6 +44,7 @@ export const DEFAULT_WIDGET_SETTINGS: WidgetSettings = {
   theme: 'island',
   useThousands: true,
   calendarTwoDecimals: false,
+  monthDecimals: false,
   accountIndex: 0,
   smallWidgetMode: 'month',
   refreshHours: 4
@@ -79,6 +81,7 @@ export function readWidgetSettings(): WidgetSettings {
     theme: saved.theme === 'grid' ? 'grid' : 'island',
     useThousands: saved.useThousands !== false,
     calendarTwoDecimals: saved.calendarTwoDecimals === true,
+    monthDecimals: saved.monthDecimals === true,
     accountIndex,
     weekStart,
     smallWidgetMode

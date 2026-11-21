@@ -319,9 +319,20 @@ export function SettingsScreen() {
         <Section
           header={<Text>数字格式</Text>}
           footer={
-            <Text>关闭千分位后，本年 3,938 显示为 3938；金额同样跟随该开关。</Text>
+            <Text>关闭千分位后，本年 3,938 显示为 3938；金额同样跟随该开关。本月默认不显示小数，213.6 显示为 214。</Text>
           }
         >
+          <Picker
+            title="本月小数"
+            value={settings.monthDecimals ? 'on' : 'off'}
+            onChanged={(value: string) =>
+              patch({ monthDecimals: value === 'on' })
+            }
+            pickerStyle="segmented"
+          >
+            <Text tag="off">不显示</Text>
+            <Text tag="on">保留一位</Text>
+          </Picker>
           <Picker
             title="千分位逗号"
             value={settings.useThousands ? 'on' : 'off'}
