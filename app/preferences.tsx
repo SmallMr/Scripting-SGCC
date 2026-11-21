@@ -289,7 +289,7 @@ export function SettingsScreen() {
         <Section
           header={<Text>日历</Text>}
           footer={
-            <Text>只影响大号组件的本月日历排列，默认周一开始。</Text>
+            <Text>只影响大号组件的本月日历排列，默认周一开始。关闭两位小数后日历按一位小数显示，整数不带小数点。</Text>
           }
         >
           <Picker
@@ -302,6 +302,36 @@ export function SettingsScreen() {
           >
             <Text tag="monday">周一</Text>
             <Text tag="sunday">周日</Text>
+          </Picker>
+          <Picker
+            title="保留两位小数"
+            value={settings.calendarTwoDecimals ? 'on' : 'off'}
+            onChanged={(value: string) =>
+              patch({ calendarTwoDecimals: value === 'on' })
+            }
+            pickerStyle="segmented"
+          >
+            <Text tag="off">一位</Text>
+            <Text tag="on">两位</Text>
+          </Picker>
+        </Section>
+
+        <Section
+          header={<Text>数字格式</Text>}
+          footer={
+            <Text>关闭千分位后，本年 3,938 显示为 3938；金额同样跟随该开关。</Text>
+          }
+        >
+          <Picker
+            title="千分位逗号"
+            value={settings.useThousands ? 'on' : 'off'}
+            onChanged={(value: string) =>
+              patch({ useThousands: value === 'on' })
+            }
+            pickerStyle="segmented"
+          >
+            <Text tag="on">显示</Text>
+            <Text tag="off">隐藏</Text>
           </Picker>
         </Section>
 

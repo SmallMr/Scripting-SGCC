@@ -11,7 +11,13 @@ import {
   ValueChip,
   contentWidth
 } from './atoms'
-import { INK, formatUsage, pt, themePalette } from './theme'
+import {
+  INK,
+  applyNumberFormat,
+  formatUsage,
+  pt,
+  themePalette
+} from './theme'
 import type { WidgetViewProps } from './model'
 
 export function WideWidgetView({
@@ -19,6 +25,7 @@ export function WideWidgetView({
   settings,
   syncedAt
 }: WidgetViewProps) {
+  applyNumberFormat(settings)
   const theme = settings.theme ?? 'island'
   const palette = themePalette(theme)
   const width = contentWidth(theme)

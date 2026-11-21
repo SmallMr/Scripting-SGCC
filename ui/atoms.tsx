@@ -654,7 +654,7 @@ export function CalendarCellView({
         lineLimit={1}
         frame={{ width, alignment: 'center' }}
       >
-        {cell.value == null || cell.isFuture ? '' : formatUsage(cell.value)}
+        {cell.value == null || cell.isFuture ? '' : formatUsage(cell.value, true)}
       </Text>
     </VStack>
   )

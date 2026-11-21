@@ -87,20 +87,45 @@ export function pt(value: number) {
   return value * (width / nominal)
 }
 
-/** 去掉无意义的尾零，同时保留一位小数和千位分隔。 */
-export function formatUsage(value: number) {
+/**
+ * 数字格式：千分位总开关，以及日历里保留几位小数。
+ * 组件渲染是同步的，所以在每次渲染开头按当前设置刷新即可。
+ */
+type NumberFormat = { group: boolean; calendarDigits: 1 | 2 }
+
+let numberFormat: NumberFormat = { group: true, calendarDigits: 1 }
+
+export function applyNumberFormat(settings: {
+  useThousands?: boolean
+  calendarTwoDecimals?: boolean
+}) {
+  numberFormat = {
+    group: settings.useThousands !== false,
+    calendarDigits: settings.calendarTwoDecimals === true ? 2 : 1
+  }
+}
+
+function groupDigits(text: string, group = numberFormat.group) {
+  return group ? text.replace(/\B(?=(\d{3})+(?!\d))/g, ',') : text
+}
+
+/** 去掉无意义的尾零；`calendar` 为真时按设置保留 1 或 2 位小数。 */
+export function formatUsage(value: number, calendar = false) {
   const safe = Number.isFinite(value) ? value : 0
-  const rounded = Math.round(safe * 10) / 10
-  const [integer, decimal] = rounded.toFixed(1).split('.')
-  const grouped = integer.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-  return decimal === '0' ? grouped : `${grouped}.${decimal}`
+  const digits = calendar ? numberFormat.calendarDigits : 1
+  const factor = digits === 2 ? 100 : 10
+  const rounded = Math.round(safe * factor) / factor
+  const [integer, decimal] = rounded.toFixed(digits).split('.')
+  const grouped = groupDigits(integer)
+  if (!decimal || Number(decimal) === 0) return grouped
+  return `${grouped}.${decimal.replace(/0+$/, '')}`
 }
 
 export function formatMoney(value: number | string) {
   const safe = Number(value)
   if (!Number.isFinite(safe)) return '0.00'
   const [integer, decimal] = safe.toFixed(2).split('.')
-  return `${integer.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}.${decimal}`
+  return `${groupDigits(integer)}.${decimal}`
 }
 
 export function clockText(timestamp: number) {

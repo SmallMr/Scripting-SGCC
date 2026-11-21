@@ -11,7 +11,13 @@ import {
   ValueChip,
   contentWidth
 } from './atoms'
-import { INK, formatUsage, pt, themePalette } from './theme'
+import {
+  INK,
+  applyNumberFormat,
+  formatUsage,
+  pt,
+  themePalette
+} from './theme'
 import type { WidgetViewProps } from './model'
 
 function MonthHero({
@@ -118,6 +124,7 @@ function LineRow({
 
 export function CompactWidgetView(props: WidgetViewProps) {
   const { summary, settings, syncedAt } = props
+  applyNumberFormat(settings)
   const theme = settings.theme ?? 'island'
   const width = contentWidth(theme, true)
   const tier = tierDisplay(

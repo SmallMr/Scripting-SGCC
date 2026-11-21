@@ -20,6 +20,8 @@ export type WidgetSettings = {
   twoLevelPq: number
   weekStart: WeekStart
   theme: WidgetTheme
+  useThousands: boolean
+  calendarTwoDecimals: boolean
   accountIndex: number
   smallWidgetMode: CompactStyle
   refreshHours: number
@@ -39,6 +41,8 @@ export const DEFAULT_WIDGET_SETTINGS: WidgetSettings = {
   twoLevelPq: 4800,
   weekStart: 'monday',
   theme: 'island',
+  useThousands: true,
+  calendarTwoDecimals: false,
   accountIndex: 0,
   smallWidgetMode: 'month',
   refreshHours: 4
@@ -73,6 +77,8 @@ export function readWidgetSettings(): WidgetSettings {
     ...DEFAULT_WIDGET_SETTINGS,
     ...saved,
     theme: saved.theme === 'grid' ? 'grid' : 'island',
+    useThousands: saved.useThousands !== false,
+    calendarTwoDecimals: saved.calendarTwoDecimals === true,
     accountIndex,
     weekStart,
     smallWidgetMode

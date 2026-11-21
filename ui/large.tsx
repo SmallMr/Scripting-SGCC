@@ -19,6 +19,7 @@ import {
   BLUE,
   INK,
   RED,
+  applyNumberFormat,
   formatUsage,
   pt,
   themePalette
@@ -33,6 +34,7 @@ export function LargeWidgetView({
   settings,
   syncedAt
 }: WidgetViewProps) {
+  applyNumberFormat(settings)
   const theme = settings.theme ?? 'island'
   const palette = themePalette(theme)
   const width = contentWidth(theme)
@@ -46,7 +48,7 @@ export function LargeWidgetView({
     weekStart === 'sunday' ? WEEKDAYS_SUNDAY : WEEKDAYS_MONDAY
   const calendar = calendarForMonth(summary.days, new Date(), weekStart)
   const cellWidth = width / 7
-  const gridHeight = pt(theme === 'island' ? 186 : 187)
+  const gridHeight = pt(theme === 'island' ? 202 : 187)
   const rowHeight = gridHeight / calendar.weeks
   const chipHeight = pt(46)
   const chipGap = pt(6)
@@ -63,11 +65,11 @@ export function LargeWidgetView({
         <HStack
           alignment="bottom"
           spacing={pt(4)}
-          frame={{ width, height: pt(40) }}
+          frame={{ width, height: pt(24) }}
         >
           <HStack alignment="lastTextBaseline" spacing={pt(3)}>
             <Text
-              font={pt(9)}
+              font={pt(8)}
               fontWeight="semibold"
               foregroundStyle={palette.label}
               lineLimit={1}
@@ -76,10 +78,11 @@ export function LargeWidgetView({
             </Text>
             <UsageValue
               value={formatUsage(summary.monthUsage)}
-              size={30}
-              unitSize={9}
+              size={17}
+              unitSize={7.5}
               color={INK}
               unitColor={palette.label}
+              weight="semibold"
             />
           </HStack>
           <Spacer minLength={0} />
