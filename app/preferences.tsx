@@ -268,6 +268,34 @@ export function SettingsScreen() {
         </Section>
 
         <Section
+          header={<Text>大号组件</Text>}
+          footer={
+            <Text>只影响大号组件的本月日历。默认周一开始；度数默认一位小数，整数不带小数点。</Text>
+          }
+        >
+          <Picker
+            title="每周起始"
+            value={settings.weekStart}
+            onChanged={(value: string) =>
+              patch({ weekStart: value as WeekStart })
+            }
+          >
+            <Text tag="monday">周一</Text>
+            <Text tag="sunday">周日</Text>
+          </Picker>
+          <Picker
+            title="日历小数"
+            value={settings.calendarTwoDecimals ? 'on' : 'off'}
+            onChanged={(value: string) =>
+              patch({ calendarTwoDecimals: value === 'on' })
+            }
+          >
+            <Text tag="off">保留一位</Text>
+            <Text tag="on">保留两位</Text>
+          </Picker>
+        </Section>
+
+        <Section
           header={<Text>外观</Text>}
           footer={
             <Text>浮岛：鼠尾草画布 + 白色内卡 + 浅绿模块；格栅：纯白画布 + 中性灰模块。修改后大、中、小号一起切换。</Text>
@@ -279,40 +307,9 @@ export function SettingsScreen() {
             onChanged={(value: string) =>
               patch({ theme: value as WidgetTheme })
             }
-            pickerStyle="segmented"
           >
             <Text tag="island">浮岛</Text>
             <Text tag="grid">格栅</Text>
-          </Picker>
-        </Section>
-
-        <Section
-          header={<Text>日历</Text>}
-          footer={
-            <Text>只影响大号组件的本月日历排列，默认周一开始。关闭两位小数后日历按一位小数显示，整数不带小数点。</Text>
-          }
-        >
-          <Picker
-            title="每周起始"
-            value={settings.weekStart}
-            onChanged={(value: string) =>
-              patch({ weekStart: value as WeekStart })
-            }
-            pickerStyle="segmented"
-          >
-            <Text tag="monday">周一</Text>
-            <Text tag="sunday">周日</Text>
-          </Picker>
-          <Picker
-            title="保留两位小数"
-            value={settings.calendarTwoDecimals ? 'on' : 'off'}
-            onChanged={(value: string) =>
-              patch({ calendarTwoDecimals: value === 'on' })
-            }
-            pickerStyle="segmented"
-          >
-            <Text tag="off">一位</Text>
-            <Text tag="on">两位</Text>
           </Picker>
         </Section>
 
@@ -328,7 +325,6 @@ export function SettingsScreen() {
             onChanged={(value: string) =>
               patch({ monthDecimals: value === 'on' })
             }
-            pickerStyle="segmented"
           >
             <Text tag="off">不显示</Text>
             <Text tag="on">保留一位</Text>
@@ -339,7 +335,6 @@ export function SettingsScreen() {
             onChanged={(value: string) =>
               patch({ useThousands: value === 'on' })
             }
-            pickerStyle="segmented"
           >
             <Text tag="on">显示</Text>
             <Text tag="off">隐藏</Text>
@@ -376,7 +371,6 @@ export function SettingsScreen() {
             onChanged={(value: string) =>
               patch({ smallWidgetMode: value as CompactStyle })
             }
-            pickerStyle="segmented"
           >
             <Text tag="month">本月</Text>
             <Text tag="bill">账单</Text>
